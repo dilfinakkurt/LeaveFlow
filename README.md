@@ -6,7 +6,11 @@
 ![Rails](https://img.shields.io/badge/Rails-8.1.4-D30001?style=for-the-badge&logo=rubyonrails&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Live Demo](https://img.shields.io/badge/Render-Live_Demo-46E3B7?style=for-the-badge&logo=render&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
+
+**🌐 Canlı Uygulama:** [https://leaveflow-aifc.onrender.com](https://leaveflow-aifc.onrender.com)  
+**💻 GitHub Deposu:** [https://github.com/dilfinakkurt/LeaveFlow](https://github.com/dilfinakkurt/LeaveFlow)
 
 ---
 
@@ -199,8 +203,10 @@ Projenin kök dizininde `.github/workflows/ci.yml` dosyası yapılandırılmış
 
 ---
 
-## 15. Canlı Dağıtım (Render) ve Dağıtım Adımları
+## 15. Canlı Dağıtım (Render) ve Canlı Bağlantı
 
+- **Canlı Sistem URL'i:** [https://leaveflow-aifc.onrender.com](https://leaveflow-aifc.onrender.com)
+- **GitHub Depo URL'i:** [https://github.com/dilfinakkurt/LeaveFlow](https://github.com/dilfinakkurt/LeaveFlow)
 - `render.yaml`: Web servisi ve PostgreSQL veritabanını tek tıkla ayağa kaldıran Blueprint dosyası.
 - `bin/render-build.sh`: Derleme esnasında asset precompilation ve migration işlemlerini otomatikleştiren betik.
 
