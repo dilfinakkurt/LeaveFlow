@@ -1,0 +1,47 @@
+name: LeaveFlow CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: leaveflow_user
+          POSTGRES_PASSWORD: leaveflow_password
+          POSTGRES_DB: leaveflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://leaveflow_user:leaveflow_password@localhost:5432/leaveflow_test
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.6'
+          bundler-cache: true
+
+      - name: Set up Database Schema
+        run: |
+          bin/rails db:migrate
+
+      - name: Run Rails Test Suite
+        run: |
+          bin/rails test
