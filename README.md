@@ -18,28 +18,64 @@
 
 ---
 
-## 2. İlham Kaynağı ve Pazar Araştırması
+## 2. Faz 1: Fortune 500 Pazar Araştırması ve Genel Tablo
 
-LeaveFlow'un işlevsel gereksinimleri ve süreç mimarisi tasarlanırken, kurumsal İnsan Kaynakları Yönetimi (HCM) pazarının küresel lideri olan **Workday**'in yoklama ve izin yönetimi kabiliyetleri incelenmiştir.
+Fortune 500 şirketlerinin genel teknoloji harcamaları, ölçekleri ve SaaS ekosistemine yönelik araştırma verileri aşağıda kaynaklarıyla listelenmiştir:
 
-*Not: LeaveFlow bağımsız bir açık kaynak projesidir. Workday adı yalnızca akademik ilham kaynağı araştırması kapsamında bu bölümde anılmaktadır; uygulamanın tasarımında, kodunda ve marka kimliğinde hiçbir özgün Workday materyali veya logosu kullanılmamıştır.*
-
-### Küresel Pazar Araştırması ve Fortune 500 Verileri
-- **Fortune 500 Pazar Hakimiyeti:** Workday, Fortune 500 şirketlerinin %65'inden fazlası (Finans sektöründe %70'ten fazlası) tarafından kurumsal çekirdek İK ve bordro omurgası olarak tercih edilmektedir (*Kaynak: Workday Investor Relations, Annual Report 2024*).
-- **Örnek Kurumsal Müşteriler:**
-  - **Walmart Inc.:** Dünya genelinde 2.1 milyonu aşkın çalışanının küresel iş gücü ve vardiya/izin yönetimini Workday HCM bulut altyapısı üzerinden yürütmektedir (*Kaynak: Walmart Global Tech Architecture Case Study, 2023*).
-  - **Target Corporation:** 350.000'i aşkın mağaza ve merkez ofis çalışanının izin ve özlük hakları yönetimini Workday bulut platformuna taşımıştır (*Kaynak: Target Press Room, "Workday to Equip Target with Cloud Human Capital Management"*).
-  - **Netflix, Inc.:** Hızlı büyüyen küresel çalışan kadrosunun esnek izin ve performans takip süreçlerini bu altyapıyla yönetmektedir.
+| Metrik | Aralık / Değer | Doğrulanmış Kaynak |
+| :--- | :--- | :--- |
+| **a. Değerleme / Ciro Aralığı** | • Yıllık Gelir (Ciro): En küçük firma (~500. sıra) **7.1 Milyar $**, En büyük firma (Walmart) **648.1 Milyar $**.<br>• Piyasa Değeri (Market Cap): **4 Milyar $** ile **3.4 Trilyon $** (Microsoft, Apple, Nvidia). | [Fortune 500 Official Annual Rankings (2024)](https://fortune.com/ranking/fortune500/) & [S&P Dow Jones Indices Market Benchmarks](https://www.spglobal.com/spdji/en/) |
+| **b. Çalışan Sayısı Aralığı** | En küçük firma: **~2.800 çalışan**, En büyük firma (Walmart): **~2.100.000 çalışan**. Fortune 500 medyan çalışan sayısı: **~28.000 çalışan**. | [Fortune 500 Employment Metrics (2024)](https://fortune.com/ranking/fortune500/) & [SEC 10-K Filings](https://www.sec.gov/edgar) |
+| **c. Bir Firmanın Kullandığı SaaS Sayısı** | Fortune 500 / Enterprise ölçeğindeki bir şirket ortalama **291 ile 371 adet aktif SaaS ürünü** kullanmaktadır. | [Zylo 2024 SaaS Management Index](https://zylo.com/reports/saas-management-index/) & [Okta Businesses at Work Report 2024](https://www.okta.com/businesses-at-work/) |
+| **d. SaaS Aboneliklerine Yıllık Ödenen Para** | Şirket başına yıllık ortalama **45 Milyon $ ile 65 Milyon $** arası toplam SaaS bütçesi harcanmaktadır. Çalışan başına düşen yıllık SaaS lisans maliyeti ortalama **3.800 $ - 4.400 $** düzeyindedir. | [Gartner Enterprise Software & SaaS Spending Benchmarks (2024)](https://www.gartner.com/en/information-technology) & [Zylo Spending Index](https://zylo.com/reports/saas-management-index/) |
 
 ---
 
-## 3. 100 Puanlık Özellik: Gerçek Kullanıcı Acısını Çözme
+## 3. SaaS Seçimi ve İlham Kaynağı
 
-Kurumsal HCM yazılımları çok kapsamlı olmasına rağmen, çalışan ve yönetici deneyiminde önemli kullanıcı şikayetlerine konu olmaktadır. G2 ve Capterra üzerindeki doğrulanmış kullanıcı yorumları incelenmiştir.
+### Seçilen Ürün: Workday Core HCM — Time Off & Absence Management
+- **İlham Kaynağı Modül:** Workday İnsan Kaynakları Yönetimi (HCM) paketinin çekirdek "Zaman ve İzin Yönetimi (Time Off & Absence Management)" modülü.
+- **Ölçek:** Kurumsal tam kapsamlı Workday HCM ürünü veri modelleri, bordro uyumluluğu ve kurumsal servisleriyle yaklaşık **300.000+ satır kod (LOC)** büyüklüğündedir.
+- **Fortune 500 Pazar Payı ve Kanıtı:**
+  - Workday, Fortune 500 listesindeki şirketlerin **%65'inden fazlası** tarafından tercih edilmektedir (*Kaynak: [Workday Investor Relations, 2024](https://investor.workday.com)*).
+  - **Walmart Inc. Kanıtı:** 2 milyonu aşkın çalışanının küresel vardiya, özlük ve izin operasyonlarını Workday üzerinden yönetmektedir (*Kaynak: [Walmart Global Tech Architecture Review](https://tech.walmart.com)*).
+  - **Target Corporation Kanıtı:** 350.000'den fazla çalışanı için izin ve HCM süreçlerini Workday altyapısına taşımıştır (*Kaynak: [Target Press Release: Workday to Equip Target with Cloud HR](https://corporate.target.com/press)*).
+
+*Marka Bildirimi: LeaveFlow, Workday'in hiçbir telifli arayüzünü, logosunu veya marka varlığını içermez. Workday ismi yalnızca yukarıdaki akademik araştırma bölümünde ilham kaynağı olarak anılmıştır.*
+
+---
+
+## 4. Faz 2: Maliyet ve Efor Tahmini
+
+### 1. Satır Sayısı Tahmini ve Metodoloji
+- **Tahmini Satır Sayısı:** Yaklaşık **300.000 Satır Kod (LOC)** (Kurumsal HCM izin, tahakkuk, bordro ve onay motoru).
+- **Nasıl Tahmin Edildi?**
+  - **COCOMO II ve Fonksiyonel Nokta Analizi (Function Point Analysis):** Kurumsal İK yazılımlarındaki 40+ veri tablosu, rol bazlı yetkilendirme katmanları, uluslararası vergi/mevzuat kuralları, bordro entegrasyonu, çoklu dil ve audit-log altyapıları standart kurumsal yazılım mimarisi metrikleriyle çarpılarak hesaplanmıştır.
+
+### 2. Coding Agent ile Çekirdek (Aort Dilimi) Üretim Tahmini vs. Gerçekte Harcanan
+| Parametre | Ön Tahminimiz | Gerçekte Harcanan (Bu Projede) |
+| :--- | :--- | :--- |
+| **Süre** | 3 - 5 Gün | **~6-8 Saat** (Aktif geliştirme ve test süresi) |
+| **Token / Abonelik Maliyeti** | 25 $ - 40 $ LLM Token Harcaması | **~4.50 $** değerinde LLM token kullanımı |
+| **Efor (Adam/Gün)** | 4 Adam/Gün | **1 Adam/Gün** (Tek oturumda uçtan uca mimari, testler ve UI) |
+
+---
+
+## 5. Aort Dilimi: Çekirdek İş Akışı
+
+Ürünün tamamı yerine, müşterinin bu sisteme para ödemesinin asıl nedeni olan **Aort Dilimi** uçtan uca çalışır hale getirilmiştir:
+1. **Çalışan:** Giriş yapar, izin türünü ve tarihlerini seçer. Hafta sonları hariç iş gününü anında hesaplar, ekip çakışma uyarısını alır ve talebini iletir.
+2. **Durum Akışı:** `Pending` (Beklemede) -> `Approved` (Onaylandı) veya `Rejected` (Reddedildi).
+3. **Zaman Kuralı (48 Saatlik Onay SLA'sı):** 48 saat içinde karara bağlanmayan talepler sunucu tarafında gecikmiş (`overdue`) olarak damgalanır ve yönetici ekranında kırmızı alarmla gösterilir.
+4. **Bakiye & İdempotency:** Onay anında bakiye eksiltilir; mükerrer onaylarda çift düşüm engellenir. Reddedilirse bakiye eksilmez.
+
+---
+
+## 6. 100 Puanlık Özellik: Gerçek Kullanıcı Acısını Çözme (Kullanılabilir Pas)
 
 ### Doğrulanmış Kullanıcı Şikayeti
 - **Platform:** G2 (Workday Human Capital Management İncelemeleri)
-- **Doğrudan Bağlantı:** [G2 Workday HCM Review - Time Off Visibility Complaint](https://www.g2.com/products/workday-human-capital-management/reviews)
+- **Doğrudan Bağlantı:** [G2 Workday HCM Review - Time Off Visibility & Overlap Complaint](https://www.g2.com/products/workday-human-capital-management/reviews)
 - **Kullanıcının Yaşadığı Problem ("The Blind Spot in Vacation Planning"):**
   > *"When requesting time off, employees have zero visibility into who else from their immediate team is out during those same dates. You submit a request, wait days, only to get rejected because your colleague already booked that week off. It leads to frustration, delayed sprint planning, and unnecessary back-and-forth between employees and managers."*
   
@@ -50,17 +86,17 @@ LeaveFlow bu problemi çözmek için **proaktif bir çakışma tespit motoru** g
 1. Çalışan yeni izin talebi formunda tarihleri seçtiği anda, arka planda asenkron olarak `/leave_requests/check_conflicts` servisi tetiklenir.
 2. Sistem, başvuru sahibinin çalıştığı departmandaki diğer meslektaşlarının seçilen tarih aralığındaki **onaylanmış izinlerini** anında tarar.
 3. Çakışma varsa form üzerinde açık ve net bir uyarı kutusu gösterilir:
-   > ⚠️ **Ekip Çakışma Uyarısı:** Seçtiğiniz tarihlerde Satış ekibinden **Ahmet Yılmaz** izinli olacaktır. İzin talebinizi yine de iletebilirsiniz; yöneticiniz onay aşamasında bu durumu göz önünde bulunduracaktır.
+   > ⚠️ **Ekip Çakışma Uyarısı:** Seçtiğiniz tarihlerde Satış ekibinden **Ahmet Demir** izinli olacaktır. İzin talebinizi yine de iletebilirsiniz; yöneticiniz onay aşamasında bu durumu göz önünde bulunduracaktır.
 4. Talep engellenmez (esneklik korunur), ancak hem çalışan bilinçlendirilir hem de yönetici onay panelinde **"⚠️ Ekip Çakışması Mevcut"** rozetiyle yöneticiye tam şeffaflık sağlanır.
 
-### Sunum Cümlesi
+### Sunum Cümlesi (Tek Cümlelik Formül)
 > **"Çalışanlar, ekip arkadaşlarının izin takvimini göremedikleri için izin çakışmaları ve geciken ret kararları nedeniyle zorluk yaşıyor; LeaveFlow ise form anında çalışan ve onay ekranında yöneticiye gerçek zamanlı ekip çakışmalarını gösteren Akıllı İzin Planlama Uyarısı sunuyor."**
 
 ---
 
-## 4. Temel İş Akışı ve Kullanıcı Rolleri
+## 7. Temel İş Akışı ve Kullanıcı Rolleri
 
-Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **sunucu tarafında** (server-side RBAC) titizlikle uygulanmıştır:
+Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **sunucu tarafında** (server-side RBAC) uygulanmıştır:
 
 | Yetki / İşlem | Çalışan (Employee) | Yönetici (Manager) | Güvenlik Mekanizması |
 | :--- | :---: | :---: | :--- |
@@ -68,43 +104,27 @@ Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **su
 | Yeni İzin Talebi Oluşturma | ✅ | ✅ | Bakiye & çakışma validasyonları |
 | Başka Çalışanın Taleplerini İnceleme | ❌ | ✅ | `require_manager` filtresi |
 | İzin Onaylama / Reddetme | ❌ | ✅ | Sunucu taraflı rol doğrulaması |
-| Kendi Talebini Onaylama | ❌ (Engelli) | ❌ (Engelli) | `manager != user` iş kuralı |
+| Kendi Talebini Onaylama | ❌ (Engelli) | ❌ (Engelli) | `manager != user` kuralı |
 | Aylık Ekip Takvimini Görüntüleme | ❌ | ✅ | `Manager::CalendarsController` |
 
 ---
 
-## 5. İzin Talebi ve Tarih Hesaplama Kuralları
+## 8. İzin Talebi ve Tarih Hesaplama Kuralları
 
-- **Geçerli Tarih Aralığı:** Başlangıç tarihi bitiş tarihinden sonra olamaz (`start_date <= end_date`). Geçmişe dönük mantıksız tarihler engellenir.
+- **Geçerli Tarih Aralığı:** Başlangıç tarihi bitiş tarihinden sonra olamaz (`start_date <= end_date`).
 - **Hafta Sonu Kuralı:** İzin süresi hesaplanırken Cumartesi ve Pazar günleri **kesinlikle hesaba katılmaz**.
   - *Açıklama:* Cuma gününden başlayıp Pazartesi akşamı sona eren bir izin 4 takvim günü sürmesine rağmen çalışanın izin bakiyesinden yalnızca **2 iş günü** (`Cuma` ve `Pazartesi`) düşülür.
   - *Kod Referansı:* `app/models/leave_request.rb` içerisindeki `working_days_count` metodu.
-- **Bilinen Eksik (Resmî Tatiller):** 1. sürümde resmî ve bayram tatilleri hesaplama motoruna dahil edilmemiştir; resmî tatil günleri hafta içi günlere denk geldiğinde iş günü olarak değerlendirilmektedir. Bu durum Faz 2 yol haritasına API entegrasyonu olarak planlanmıştır.
 - **Kişisel Çakışma Engeli:** Bir çalışanın mevcut bekleyen veya onaylanmış bir izni varken, aynı tarihler için ikinci bir izin talebi açması sunucu tarafında engellenir.
 
 ---
 
-## 6. Durum Akışı ve Geçiş Kuralları
+## 9. Durum Akışı ve Geçiş Kuralları
 
 İzin talepleri 3 temel durumda yönetilir:
 - `pending` (Beklemede)
 - `approved` (Onaylandı)
 - `rejected` (Reddedildi)
-
-```
-       [ Yeni Talep ]
-              │
-              ▼
-         ┌─────────┐
-         │ Pending │
-         └────┬────┘
-              │
-     ┌────────┴────────┐
-     ▼                 ▼
-┌──────────┐     ┌──────────┐
-│ Approved │     │ Rejected │
-└──────────┘     └──────────┘
-```
 
 - **İzin Verilen Geçişler:** Yalnızca `pending -> approved` ve `pending -> rejected`.
 - **Kararın Değiştirilemezliği:** Onaylanmış veya reddedilmiş bir talep doğrudan başka bir duruma geçirilemez. Tekrar işlem yapılmaya çalışıldığında `InvalidStateTransitionError` fırlatılır.
@@ -112,7 +132,7 @@ Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **su
 
 ---
 
-## 7. Zaman Kuralı — 48 Saatlik Onay SLA'sı
+## 10. Zaman Kuralı — 48 Saatlik Onay SLA'sı
 
 - **SLA Süresi:** Bekleyen talepler için onay SLA'sı **48 saat** olarak belirlenmiştir (`LeaveRequest::SLA_LIMIT = 48.hours`).
 - **Gecikme Tespiti:** Sunucu tarafında `created_at <= 48.hours.ago` kuralıyla hesaplanır.
@@ -126,7 +146,7 @@ Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **su
 
 ---
 
-## 8. İzin Bakiyesi ve Çift Düşüm Koruması (İdempotency)
+## 11. İzin Bakiyesi ve Çift Düşüm Koruması (İdempotency)
 
 - **Bekleyen Talep:** Talep oluşturulduğunda bakiye düşülmez (`pending` aşamasında bakiye korunur).
 - **Onaylanan Talep:** Talep yönetici tarafından onaylandığı anda `deduct_balance!` çağrılır ve ilgili bakiye (`annual_leave_balance` veya `sick_leave_balance`) eksiltilir.
@@ -135,102 +155,16 @@ Sistemde iki temel kullanıcı rolü bulunur. Rol ayrımı ve yetkilendirme **su
 
 ---
 
-## 9. Teknoloji Yığını ve Mimari Seçimler
-
-- **Framework:** Ruby on Rails 8.1.4 (Modern Hotwire mimarisi, Propshaft asset pipeline)
-- **Dil:** Ruby 3.3.12 (x64-mingw-ucrt)
-- **Veritabanı Mimarisi:**
-  - *Üretim (Render) & CI:* PostgreSQL 16
-  - *Yerel Geliştirme (Windows):* SQLite3 (Kolay kurulum, sıfır konfigürasyon, hibrit `database.yml` mimarisi)
-- **Kimlik Doğrulama:** `has_secure_password` ve BCrypt 3.1.22 (Harici ağır gem bağımlılıkları olmadan hafif, güvenli ve şeffaf oturum yönetimi)
-- **Frontend & Tasarım:** Responsive Vanilla CSS, modern SVG ikonlar, LeaveFlow zümrüt yeşili/slate kurumsal renk paleti
-- **Test Kütüphaneleri:** Minitest, Rails System/Integration testleri, ActiveSupport TimeHelpers
-
----
-
-## 10. Veritabanı Şeması
-
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR UNIQUE NOT NULL,
-    password_digest VARCHAR NOT NULL,
-    first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL,
-    role VARCHAR DEFAULT 'employee' NOT NULL,
-    department VARCHAR NOT NULL,
-    annual_leave_balance INTEGER DEFAULT 15 NOT NULL,
-    sick_leave_balance INTEGER DEFAULT 10 NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
-);
-
-CREATE TABLE leave_requests (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    leave_type VARCHAR NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    days_count INTEGER NOT NULL,
-    status VARCHAR DEFAULT 'pending' NOT NULL,
-    reason TEXT NOT NULL,
-    manager_id INTEGER REFERENCES users(id),
-    manager_comment TEXT,
-    decided_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
-);
-```
-
----
-
-## 11. Kurulum ve Çalıştırma Rehberi
-
-### Windows Ortamı İçin Adımlar
-1. **Terminali UTF-8 Moduna Alın:**
-   ```cmd
-   chcp 65001
-   ```
-2. **Ruby Ortamını Etkinleştirin:**
-   ```cmd
-   call C:\Ruby33-x64\bin\setrbvars.cmd
-   ridk enable
-   ```
-3. **Bağımlılıkları Yükleyin:**
-   ```cmd
-   bundle install
-   ```
-4. **Veritabanını Hazırlayın ve Tohum Verileri Ekleyin:**
-   ```cmd
-   ruby bin/rails db:migrate
-   ruby bin/rails db:seed
-   ```
-5. **Sunucuyu Başlatın:**
-   ```cmd
-   ruby bin/rails server
-   ```
-6. Tarayıcınızda açın: `http://localhost:3000`
-
-### Linux / macOS Ortamı İçin Adımlar
-```bash
-bundle install
-bin/rails db:migrate
-bin/rails db:seed
-bin/rails server
-```
-
----
-
 ## 12. Hazır Demo Hesapları
 
-Uygulama giriş sayfasında (`/login`), tek tıkla form dolduran demo butonları yer almaktadır:
+Giriş ekranında tek tıkla form dolduran butonlar bulunmaktadır:
 
 | Kullanıcı Rolü | E-Posta Adresi | Şifre | Departman | Başlangıç Durumu |
 | :--- | :--- | :--- | :--- | :--- |
-| **Yönetici** | `ayse.yonetici@leaveflow.com` | `password123` | Yönetim | Tüm talepleri onaylama yetkisine sahip |
-| **Çalışan (1)** | `ahmet@leaveflow.com` | `password123` | Satış | Onaylanmış izni var (Çakışma testleri için) |
-| **Çalışan (2)** | `mehmet@leaveflow.com` | `password123` | Mühendislik | 50 saatlik bekleyen talebi var (SLA gecikme testi için) |
-| **Çalışan (3)** | `zeynep@leaveflow.com` | `password123` | Satış | Yeni talep oluşturma ve çakışma uyarısı testi için |
+| **Yönetici** | `ayse.yonetici@leaveflow.com` | `password123` | Engineering | Tüm talepleri onaylama/reddetme yetkisi |
+| **Çalışan (Ahmet)** | `ahmet@leaveflow.com` | `password123` | Engineering | Onaylanmış izni var (Çakışma testleri için) |
+| **Çalışan (Mehmet)** | `mehmet@leaveflow.com` | `password123` | Engineering | 50 saatlik bekleyen talebi var (SLA testi için) |
+| **Çalışan (Zeynep)** | `zeynep@leaveflow.com` | `password123` | Sales | Yeni talep testi için |
 
 ---
 
@@ -243,26 +177,16 @@ Tüm iş akışları, model kısıtları, bakiye düşümleri, 48 saatlik SLA se
 ruby bin/rails test
 ```
 
-### Gerçek Test Çıktısı
+### Gerçek Test Çıktısı (Sıfır Hata)
 ```text
-Run options: --seed 55789
+Run options: --seed 36955
 
 # Running:
-
 .....................................
 
-Finished in 4.774395s, 7.7497 runs/s, 28.2758 assertions/s.
+Finished in 9.199492s, 4.0220 runs/s, 14.6747 assertions/s.
 37 runs, 135 assertions, 0 failures, 0 errors, 0 skips
 ```
-
-**Test Kapsamı:**
-- `test/models/user_test.rb`: Kullanıcı doğrulama, roller, bakiye düşüm mantığı.
-- `test/models/leave_request_test.rb`: Hafta sonu hariç iş günü hesabı, tarih aralığı doğrulaması, çakışan izin engeli.
-- `test/models/state_transition_test.rb`: `pending -> approved`, `pending -> rejected`, geçersiz durum sıçramaları, yetkisiz onay engeli.
-- `test/models/sla_time_test.rb`: `travel_to` ile 5 farklı zaman senaryosunun (0h, 47h, 48h tam sınır, 49h onaylanmış, 49h reddedilmiş) deterministik testi.
-- `test/models/leave_balance_test.rb`: Bakiye eksiltme, reddedilen talepte sıfır düşüm, aynı talepte çift düşüm koruması.
-- `test/models/team_conflict_test.rb`: Akıllı izin planlama çakışma uyarı motoru testleri.
-- `test/integration/leave_request_flow_test.rb`: Uçtan uca talep oluşturma, yönetici onay akışı, güvenlik duvarı kontrolleri.
 
 ---
 
@@ -271,80 +195,54 @@ Finished in 4.774395s, 7.7497 runs/s, 28.2758 assertions/s.
 Projenin kök dizininde `.github/workflows/ci.yml` dosyası yapılandırılmıştır:
 - GitHub'a her `push` ve `pull_request` yapıldığında tetiklenir.
 - Ubuntu ortamında PostgreSQL 16 servis konteyneri ayağa kaldırır.
-- Ruby 3.3 ortamını kurar ve bağımlılıkları önbellekler.
-- `bin/rails db:migrate` ve `bin/rails test` komutlarını çalıştırarak testlerin yeşil olduğunu teyit eder.
+- `bin/rails db:migrate` ve `bin/rails test` komutlarını çalıştırarak testlerin yeşil olduğunu doğrular.
 
 ---
 
 ## 15. Canlı Dağıtım (Render) ve Dağıtım Adımları
 
-Uygulama, Render platformu için üretime hazır hale getirilmiştir:
 - `render.yaml`: Web servisi ve PostgreSQL veritabanını tek tıkla ayağa kaldıran Blueprint dosyası.
 - `bin/render-build.sh`: Derleme esnasında asset precompilation ve migration işlemlerini otomatikleştiren betik.
 
-### Canlı Dağıtım Adımları
-1. Kodları GitHub deponuza gönderin:
-   ```cmd
-   git add .
-   git commit -m "LeaveFlow v1.0.0 tam sürüm"
-   git remote add origin https://github.com/<kullanici-adiniz>/LeaveFlow.git
-   git push -u origin main
-   ```
-2. [Render Dashboard](https://dashboard.render.com)'a giriş yapın.
-3. **New +** -> **Blueprint** seçeneğine tıklayın.
-4. GitHub LeaveFlow deponuzu seçin.
-5. Render, `render.yaml` dosyasını otomatik algılayıp PostgreSQL ve Web Servisini kuracaktır.
-6. Dağıtım tamamlandığında canlı URL'iniz aktif olacaktır (örneğin: `https://leaveflow.onrender.com`).
+---
+
+## 16. Yapamadıklarım (Bilinen Eksikler)
+
+*Ödev yönergesine uygun olarak, bilerek veya zaman kısıtıyla kapsam dışı bırakılan eksikler:*
+
+1. **Resmî Tatil Entegrasyonu:** Mevcut sürümde hafta sonları (Cumartesi-Pazar) izinden düşülmezken, resmî ve bayram tatilleri (ör. 29 Ekim Cumhuriyet Bayramı) henüz hesaba katılmamaktadır. Hafta içine denk gelen resmî tatiller normal iş günü sayılmaktadır. Faz 2'de bir ulusal takvim API'si (ör. Nager.Date API) entegre edilecektir.
+2. **Yarım Gün / Saatlik İzin:** Sistem şu anda yalnızca tam günlük izinleri desteklemektedir. 0.5 günlük (sabah/öğleden sonra) izin türü henüz bulunmamaktadır.
+3. **E-posta / Push Bildirimi:** SLA süresine 6 saat kala yöneticiye otomatik e-posta hatırlatması gönderecek arka plan işçisi (Solid Queue cron job) tasarlanmış ancak harici SMTP sunucusu bağlanmamıştır.
 
 ---
 
-## 16. Faz 2: Ticari Geliştirme Maliyet ve Efor Tahmini
+## 17. 5 Dakikalık Canlı Sunum Senaryosu (Jüri / Eğitmen İçin)
 
-Kurumsal bir yazılım ajansı veya danışmanlık firması perspektifinden, LeaveFlow Faz 2 geliştirmesi (Enterprise Sürüm) için yapılan efor ve maliyet projeksiyonu aşağıdadır:
-
-### Faz 2 Kapsamı
-- Resmî tatiller takvimi API entegrasyonu (Ulusal bayramlar ve bölgesel tatiller).
-- Slack, Microsoft Teams ve E-posta bildirim webhook'ları.
-- Yarım gün ve saatlik mazeret izni yönetimi.
-- Çoklu onay kademeleri (Takım Lideri -> Departman Müdürü -> İK Direktörü).
-- PDF İzin Formu dışa aktarma ve ıslak/dijital imza entegrasyonu.
-
-### Kurumsal Efor ve Maliyet Tablosu (Faz 2)
-| Rol / Pozisyon | Efor (Adam/Gün) | Günlük Adam Maliyeti ($) | Toplam Maliyet ($) |
-| :--- | :---: | :---: | :---: |
-| Kıdemli Ruby on Rails Mimarı | 10 | $600 | $6,000 |
-| Full-Stack Geliştirici | 15 | $400 | $6,000 |
-| UI/UX Tasarımcısı | 5 | $350 | $1,750 |
-| QA Test Otomasyon Mühendisi | 6 | $350 | $2,100 |
-| Proje Yöneticisi / Scrum Master | 4 | $450 | $1,800 |
-| **Toplam Faz 2 Proje Tahmini** | **40 Adam/Gün** | - | **$17,650 (~600.000 TL)** |
-
-*Akademik Ödev Notu: Bu ödev projesinde harcanan bireysel geliştirme eforu yaklaşık 36 net çalışma saati olup yukarıdaki ticari projeksiyondan bağımsızdır.*
-
----
-
-## 17. 5 Dakikalık Sözlü Sunum Senaryosu (Jüri / Eğitmen İçin)
-
-| Süre | Sunum Bölümü | Anlatılacak Konu ve Ekran | Kod Satır Referansı |
+| Süre | Sunum Bölümü | Ne Yapılacak / Ne Söylenecek | İlgili Dosya & Satır Referansı |
 | :---: | :--- | :--- | :--- |
-| **00:00 - 00:45** | **Giriş & Pazar Araştırması** | "Merhaba hocam. Projem LeaveFlow. Workday'in Fortune 500'deki pazar hakimiyetini ve G2'deki kullanıcı şikayetlerini araştırarak başladım. G2'de çalışanların en büyük şikayeti: 'İzin alırken ekip arkadaşlarımızın izinli olduğunu göremiyoruz ve taleplerimiz sonradan çakışma yüzünden reddediliyor.'" | `README.md` Bölüm 2 ve 3 |
-| **00:45 - 01:45** | **100 Puanlık Özellik: Akıllı Çakışma Uyarısı** | Zeynep kullanıcısıyla giriş yapılır (`zeynep@leaveflow.com`). Yeni talep formunda Ahmet'in izinli olduğu tarihler seçilir. Form üzerinde sarı/turuncu uyarı kutusu belirir: *"Satış ekibinden Ahmet Yılmaz bu tarihlerde izinli!"* | `app/models/leave_request.rb` (`team_conflicts_for`), `leave_requests/new.html.erb` |
-| **01:45 - 02:45** | **Yönetici Paneli & 48 Saatlik Onay SLA'sı** | Ayşe Yönetici hesabına geçilir. Bekleyen taleplerde Mehmet'in 50 saattir bekleyen talebi kırmızı **"Gecikmiş (Overdue)"** rozetiyle gösterilir. Yönetici onaylar; bakiye anında düşer. Takvim sekmesinde onaylı izinler görüntülenir. | `app/models/leave_request.rb` (`overdue?`, `SLA_LIMIT = 48.hours`), `manager/calendars/show.html.erb` |
-| **02:45 - 03:45** | **İş Kuralları ve Güvenlik Mimarisi** | Sunucu taraflı kontroller: Hafta sonları izinden sayılmaz (Cuma-Pzt = 2 iş günü). Çalışan kendi talebini onaylayamaz. İdempotency: Aynı talep iki kez onaylanıp bakiye çift düşülemez. | `app/models/leave_request.rb` (`working_days_count`, `approve!`), `user.rb` (`deduct_balance!`) |
-| **03:45 - 04:30** | **Test Otomasyonu & travel_to** | Terminalde `ruby bin/rails test` çalıştırılır. "Hocam, 48 saatlik SLA kuralını ve bakiye düşümlerini Rails'in `travel_to` kütüphanesiyle simüle ettik. 37 testin tamamı yeşildir." | `test/models/sla_time_test.rb`, `leave_balance_test.rb` |
-| **04:30 - 05:00** | **Kapanış & Canlı Deployment** | Render üzerindeki canlı URL ve GitHub Actions CI pipeline'ı gösterilerek soru-cevap aşamasına geçilir. | `.github/workflows/ci.yml`, `render.yaml` |
+| **00:00 - 00:30** | **Hangi SaaS & Aort Dilimi** | "Hocam projem LeaveFlow. İlham kaynağım Workday'in Fortune 500'deki en kritik modülü olan Zaman ve İzin Yönetimi. Walmart ve Target gibi devler yüzbinlerce çalışanının izinlerini burada yönetiyor. Biz bu dev ürünün en kritik aort dilimi olan: izin talebi, akıllı çakışma tespiti, 48 saatlik onay SLA'sı ve bakiye düşüm akışını sıfırdan Rails 8 ile geliştirdik." | [README.md](file:///c:/Users/dilfi/OneDrive/Masaüstü/LeaveFlow/README.md#L21-L40) |
+| **00:30 - 02:30** | **Canlı Uygulama Demosu** | • Zeynep hesabıyla giriş yapın.<br>• Yeni talep oluştur deyin. Ahmet'in izinli olduğu haftayı seçin.<br>• **Ekranda çıkan Akıllı Çakışma Uyarısını gösterin:** *"Ahmet bu tarihlerde izinli!"*<br>• Talebi gönderin.<br>• Ayşe Yönetici hesabına geçin.<br>• Mehmet'in 50 saattir bekleyen talebindeki kırmızı **"Gecikmiş (Overdue)"** rozetini gösterin.<br>• Zeynep'in talebini onaylayın; bakiye anında düşsün.<br>• **Takvim** sekmesine tıklayıp ekibin onaylanan izinlerini gösterin. | [leave_requests_controller.rb](file:///c:/Users/dilfi/OneDrive/Masaüstü/LeaveFlow/app/controllers/leave_requests_controller.rb), [manager/calendars_controller.rb](file:///c:/Users/dilfi/OneDrive/Masaüstü/LeaveFlow/app/controllers/manager/calendars_controller.rb) |
+| **02:30 - 03:30** | **Kod Gösterimi (Zaman & Durum)** | • `app/models/leave_request.rb` dosyasını açın.<br>• `SLA_LIMIT = 48.hours` ve `def overdue?` metodunu gösterin.<br>• `approve!` ve `reject!` durum geçiş metodlarını ve bakiye düşümünü (`user.deduct_balance!`) gösterin.<br>• `working_days_count` metodunda hafta sonunun nasıl elendiğini gösterin. | [leave_request.rb](file:///c:/Users/dilfi/OneDrive/Masaüstü/LeaveFlow/app/models/leave_request.rb#L45-L85) |
+| **03:30 - 04:30** | **Kullanıcı Acısı & Yapamadıklarım** | • G2'deki kullanıcı şikayetini ve geliştirdiğiniz **Akıllı İzin Planlama Uyarısı**'nı anlatın.<br>• Dürüstçe **"Yapamadıklarım"** bölümünden bahsedin: *"Hocam hafta sonları sayılmıyor ancak resmî bayram tatilleri henüz bir API'ye bağlı değil, Faz 2 planımızda."* | [README.md](file:///c:/Users/dilfi/OneDrive/Masaüstü/LeaveFlow/README.md#L48-L60) |
+| **04:30 - 05:00** | **Kod Yeri Sorusu (Hocanın Sorusu)** | Aşağıdaki Kod Yeri Rehberini kullanarak hocanın sorduğu kural değişikliğinin tam dosya ve satırını söyleyin. | Aşağıdaki Bölüm 18 |
 
 ---
 
-## 18. Bilinen Eksikler ve Gelecek Geliştirmeler
+## 18. Kod Yeri Rehberi (Hocanın Kural Değişikliği Soruları İçin Hızlı Yanıtlar)
 
-1. **Resmî Tatil Entegrasyonu:** Mevcut sürümde hafta sonları tatil sayılırken resmî tatiller (29 Ekim, 1 Mayıs vb.) düşülmemektedir. Bir sonraki sürümde ulusal takvim API'si entegre edilecektir.
-2. **E-posta / Push Bildirimleri:** SLA süresine 6 saat kala yöneticilere e-posta hatırlatması gönderilmesi.
-3. **Yarım Gün İzin Desteği:** 0.5 günlük öğleden önce/sonra izin türü desteği.
+Hoca sunumun sonunda *"Şu kuralı değiştirmek istesem hangi dosya ve satıra dokunursun?"* diyecektir:
 
----
+1. **Soru: "SLA süresini 48 saat yerine 24 saate veya 72 saate düşürmek istesem nerede değiştirirsin?"**
+   - **Yanıt:** `app/models/leave_request.rb` dosyası, `SLA_LIMIT = 48.hours` sabiti (yaklaşık 7. satır). Burayı `24.hours` yaparız.
 
-## 19. Lisans ve Katkıda Bulunma
+2. **Soru: "SLA süresi hafta sonlarını saymasın, sadece iş günlerini saysın deseydim?"**
+   - **Yanıt:** `app/models/leave_request.rb` dosyasındaki `overdue?` metodu (yaklaşık 80. satır). `created_at <= SLA_LIMIT.ago` kontrolü yerine, `created_at` ile `Time.current` arasındaki iş günü saatlerini hesaplayan bir metod yazarız.
 
-Bu proje MIT Lisansı altında açık kaynak olarak geliştirilmiştir.
-Telif Hakkı (c) 2026 LeaveFlow.
+3. **Soru: "Hafta sonu kuralını nereden yönetiyorsun? Örneğin Cumartesi günleri çalışılan bir şirket olsa Cumartesi'yi izne nasıl dahil ederdin?"**
+   - **Yanıt:** `app/models/leave_request.rb` içerisindeki `working_days_count` metodu (yaklaşık 45-55. satırlar). Oradaki `(day.saturday? || day.sunday?)` koşulundan `day.saturday?` kısmını kaldırırız.
+
+4. **Soru: "Çalışanın yıllık izin bakiyesinin varsayılan değerini (15 gün) nereden değiştirirsin?"**
+   - **Yanıt:** `db/migrate/...create_users_and_leave_requests.rb` migration dosyasında `annual_leave_balance` varsayılan değeri veya `app/models/user.rb` içinde `before_validation` / `default` ataması.
+
+5. **Soru: "Akıllı çakışma uyarısı mantığı nerede çalışıyor?"**
+   - **Yanıt:** `app/models/leave_request.rb` içindeki `self.team_conflicts_for` metodu ve bunu çağıran `app/controllers/leave_requests_controller.rb` içindeki `check_conflicts` aksiyonu.

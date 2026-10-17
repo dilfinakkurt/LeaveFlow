@@ -1,26 +1,53 @@
 # AGENT.md — LeaveFlow Sistem ve Mimari Rehberi
 
-Bu belge, LeaveFlow projesinin teknik mimarisini, etki alanı modelini, iş kurallarını, test stratejisini ve operasyonel yönergelerini içeren teknik referans dokümanıdır.
+> Bu belge, LeaveFlow projesinin teknik mimarisini, yapay zeka ajanının (Senior Rails Architect) öğrenci geliştirici ile birlikte aldığı teknik kararları (ADR), iş kurallarını, test stratejisini ve operasyonel yönergelerini içeren teknik referans dokümanıdır.
 
 ---
 
-## 1. Proje Özeti ve Hedefler
+## 1. Ajan Kimliği ve Çift Programlama (Pair Programming) Rolü
+
+- **Ajan Rolü:** Kıdemli Ruby on Rails Yazılım Mimarı ve Teknik Rehber (Senior Architect & Pair Programmer).
+- **Geliştirici:** Yazılım Mühendisliği 3. Sınıf Öğrencisi.
+- **Çalışma Prensibi:**
+  - Sadece kod üretmek değil; Windows geliştirme ortamındaki hataları teşhis etmek, Türkçe ve pedagojik açıklamalar sunmak.
+  - "Aort Dilimi" prensibine sadık kalarak gereksiz özellik eklememek, çalışan ve test edilmiş ürünü zamanında teslim etmek.
+  - Test çıktısı görmeden hiçbir özelliğe "çalışıyor" dememek.
+
+---
+
+## 2. Proje Özeti ve Hedefler
 
 - **Ürün Adı:** LeaveFlow
-- **Proje Türü:** B2B SaaS İzin ve Onay Yönetim Sistemi
-- **İlham Kaynağı:** Workday Core HCM İzin ve Yoklama Yönetim Modülleri (özgün marka kimliği, sıfırdan geliştirilmiş Rails mimarisi)
+- **Proje Türü:** B2B SaaS Çalışan İzin ve Yönetici Onay Sistemi
+- **İlham Kaynağı:** Workday Core HCM Zaman ve İzin Modülü (özgün LeaveFlow marka kimliği ve sıfırdan geliştirilmiş Rails mimarisi).
 - **Teknoloji Yığını:**
-  - **Framework:** Ruby on Rails 8.1.4 (Ruby 3.3.12)
-  - **Veritabanı:** PostgreSQL 16 (Production & CI) / SQLite3 (Yerel Windows geliştirme ve hızlı testler için hibrit adaptör)
+  - **Framework:** Ruby on Rails 8.1.4 (Ruby 3.3.12 x64-mingw-ucrt)
+  - **Veritabanı:** PostgreSQL 16 (Render Canlı Ortamı & GitHub Actions CI) / SQLite3 (Yerel Windows geliştirme ortamı için hibrit adaptör)
   - **Frontend:** HTML5, Modern Vanilla CSS3, Hotwire (Turbo & Stimulus), Vanilla JavaScript Fetch API
-  - **Kimlik Doğrulama & Yetkilendirme:** `has_secure_password` (BCrypt 3.1.22), Sunucu Taraflı Rol Bazlı Yetkilendirme (RBAC)
+  - **Kimlik Doğrulama:** `has_secure_password` (BCrypt 3.1.22), Sunucu Taraflı Rol Bazlı Yetkilendirme (RBAC)
   - **Test Otomasyonu:** Rails Minitest, ActiveSupport::Testing::TimeHelpers (`travel_to`)
-  - **CI/CD:** GitHub Actions
-  - **Deployment:** Render (Puma, managed PostgreSQL)
+  - **CI/CD:** GitHub Actions (PostgreSQL servis konteyneri ile)
+  - **Deployment:** Render (Puma, Managed PostgreSQL)
 
 ---
 
-## 2. Etki Alanı Modeli ve Veritabanı Şeması
+## 3. Mimari Karar Günlüğü (Architectural Decision Records - ADR)
+
+### ADR-01: Kimlik Doğrulama İçin Devise Yerine `has_secure_password` Seçimi
+- **Gerekçe:** Devise gem'i Rails 8 ile bazen sürüm uyumsuzlukları çıkarabilen ağır bir DSL içerir. Rails'in yerleşik `has_secure_password` (BCrypt) altyapısı, hem eğitim amacıyla oturum akışını (session lifecycle) şeffaf şekilde öğrenmeyi sağlar hem de harici bağımlılıkları minimize eder.
+
+### ADR-02: Yerelde Hibrit SQLite / Üretimde PostgreSQL Mimarisi
+- **Gerekçe:** Windows işletim sisteminde yerel PostgreSQL servislerinin kurulumu, port çakışmaları ve kullanıcı şifre yapılandırmaları öğrenci ortamında ciddi zaman kaybettirir. `config/database.yml` dosyasında `DATABASE_URL` varsa PostgreSQL, yoksa SQLite3 kullanacak hibrit mimari kurulmuştur. Render ve GitHub Actions ortamında PostgreSQL 16 sorunsuz çalışır.
+
+### ADR-03: Sunucu Tarafı Güvenlik ve RBAC (Never Trust the Client)
+- **Gerekçe:** Bir çalışanın yöneticinin onay butonuna erişememesi sadece HTML'de butonu gizlemekle sağlanamaz. Controller katmanında `require_manager` ve `current_user.leave_requests` kapsamları; Model katmanında ise `manager != user` doğrulamasıyla güvenlik sunucu tarafında kilitlenmiştir.
+
+### ADR-04: Geliştirme Sunucusu Olarak WEBrick Uyarlaması
+- **Gerekçe:** Windows ortamında Puma gem'inin C derleme kütüphanelerine takılmasını önlemek için yerel geliştirmede WEBrick varsayılan yapılmış; üretim (Render) ortamı için ise `render.yaml` üzerinde Puma yapılandırılmıştır.
+
+---
+
+## 4. Etki Alanı Modeli ve Veritabanı Şeması
 
 ```
 +------------------------------------+          +------------------------------------+
@@ -54,36 +81,52 @@ Bu belge, LeaveFlow projesinin teknik mimarisini, etki alanı modelini, iş kura
 
 ---
 
-## 3. Temel İş Kuralları ve Uygulama Ayrıntıları
+## 5. Temel İş Kuralları ve Uygulama Detayları
 
-### 3.1. İş Günü ve Hafta Sonu Hesabı (`working_days_count`)
+### 5.1. İş Günü ve Hafta Sonu Hesabı (`working_days_count`)
 - İzin günleri hesaplanırken Cumartesi (`wday == 6`) ve Pazar (`wday == 0`) günleri hesaba katılmaz.
-- Örnek: Cuma başlangıç, Pazartesi bitiş olan bir talep 4 takvim günü sürmesine rağmen 2 iş günü (`Cuma` + `Pazartesi`) izin tüketir.
+- Cuma başlangıç, Pazartesi bitiş olan bir talep 4 takvim günü sürmesine rağmen 2 iş günü (`Cuma` + `Pazartesi`) izin tüketir.
 - Form doldurulurken arayüzde JavaScript tarafından anlık olarak, sunucu tarafında ise `before_validation :calculate_days_count` ile hesaplanır.
 
-### 3.2. Bakiye Düşümü ve Çift Düşüm Koruması (İdempotency)
+### 5.2. Bakiye Düşümü ve Çift Düşüm Koruması (İdempotency)
 - İzin talebi oluşturulduğunda (`pending`), kullanıcının bakiyesinden gün düşülmez.
 - Talep yönetici tarafından **onaylandığında** (`approve!`), ilgili izin türünün bakiyesinden (`annual_leave_balance` veya `sick_leave_balance`) gün düşülür.
 - `transaction` bloğu içerisinde `lock!` uygulanır. Talep zaten `approved` ise tekrar düşüm yapılmaz (`raise InvalidStateTransitionError`).
 - Reddedilen taleplerde hiçbir bakiye düşümü yapılmaz.
 
-### 3.3. 48 Saatlik Onay SLA Kuralı (`SLA_LIMIT = 48.hours`)
+### 5.3. 48 Saatlik Onay SLA Kuralı (`SLA_LIMIT = 48.hours`)
 - Bekleyen (`pending`) bir talep, oluşturulma zamanından (`created_at`) itibaren 48 saat geçmişse sunucu tarafında **Gecikmiş (Overdue)** olarak değerlendirilir.
 - Tanım: `def overdue?; pending? && created_at <= SLA_LIMIT.ago; end`
 - Onaylanan veya reddedilen talepler, 48 saat geçse bile asla gecikmiş sayılmaz (`pending?` false olduğu için).
 - Yönetici paneli ve gösterge panellerinde gecikmiş talepler kırmızı uyarı rozetleriyle önceliklendirilir.
 
-### 3.4. 100 Puanlık Özellik: Akıllı İzin Planlama Uyarısı (Smart Team Conflict Detection)
+### 5.4. 100 Puanlık Özellik: Akıllı İzin Planlama Uyarısı (Smart Team Conflict Detection)
 - **Doğrulanan Kullanıcı Acısı:** G2 Workday kullanıcı yorumlarında belirtilen *"İzin alırken aynı ekibin izin takvimini görememe ve çakışmalar yüzünden onay süreçlerinin tıkanması"* problemi.
 - **LeaveFlow Çözümü:**
   - Çalışan talep oluştururken başlangıç-bitiş tarihleri seçildiği anda arka planda `/leave_requests/check_conflicts` uç noktasına istek atılır.
   - Aynı departmandaki diğer çalışanların o tarihlerdeki onaylanmış izinleri sorgulanır.
-  - Eğer çakışma varsa arayüzde turuncu bilgilendirme kutusu açılır: *"Dikkat: Bu tarihler arasında Satış ekibinden Ahmet Yılmaz izinli olacaktır."*
+  - Eğer çakışma varsa arayüzde turuncu bilgilendirme kutusu açılır: *"Dikkat: Bu tarihler arasında Satış ekibinden Ahmet Demir izinli olacaktır."*
   - Talep engellenmez (özgürce gönderilebilir); ancak hem çalışan uyarılır hem de yönetici onay panelinde bu çakışma yöneticinin dikkatine sunulur.
 
 ---
 
-## 4. Dosya ve Dizin Yapısı
+## 6. Geliştirme Sürecinde Karşılaşılan Sorunlar ve Çözüm Günlüğü (Debugging Log)
+
+1. **Windows Türkçe Karakter Dizin Hatası (`Masaüstü`):**
+   - *Sorun:* Windows terminali varsayılan olarak CP1254 veya OEM kod sayfasıyla açıldığından, `Masaüstü` yolundaki `ü` karakteri Ruby require işlemlerinde soru işaretine dönüşerek dosya bulma hataları üretti.
+   - *Çözüm:* Terminal açılışında `chcp 65001` (UTF-8) zorunlu hale getirildi.
+
+2. **Rails 8 `travel_to` İç İçe Blok Hatası:**
+   - *Sorun:* `freeze_time` bloğu içinde `travel` çağrıldığında Rails 8 ActiveSupport `nested travel_to` hatası fırlattı.
+   - *Çözüm:* `test/models/sla_time_test.rb` dosyasında iç içe bloklar kaldırıldı; her zaman adımı için bağımsız, sıralı `travel_to(@base_time + X.hours)` blokları kurgulandı.
+
+3. **Geliştirme Veritabanı Tohumlama (Seed):**
+   - *Sorun:* Test ortamı otomatik tohumlanırken geliştirme veritabanı boş kaldığı için kullanıcı girişi yapılamadı.
+   - *Çözüm:* Güvenli `db/seeds.rb` betiği (`find_or_initialize_by`) geliştirme ortamında çalıştırılarak demo hesaplar üretildi.
+
+---
+
+## 7. Dosya ve Dizin Yapısı
 
 ```
 LeaveFlow/
@@ -128,39 +171,30 @@ LeaveFlow/
 ├── .github/workflows/ci.yml                   # GitHub Actions PostgreSQL CI
 ├── bin/render-build.sh                        # Render derleme ve migration betiği
 ├── render.yaml                                # Render Blueprint altyapı tanımı
-└── README.md                                  # Kapsamlı proje dokümantasyonu
+├── README.md                                  # Kapsamlı proje dokümantasyonu
+└── AGENT.md                                   # Ajan sistem ve mimari dokümantasyonu
 ```
 
 ---
 
-## 5. Komut Referansı
+## 8. Komut Referansı
 
-### Yerel Ortamda Çalıştırma (Windows)
-```bash
-# Bağımlılıkları yükleme
-bundle install
-
-# Veritabanını hazırlama ve demo verileri yükleme
-ruby bin/rails db:migrate
-ruby bin/rails db:seed
-
-# Rails sunucusunu başlatma
-ruby bin/rails server
+### Yerel Ortamda Çalıştırma (Windows PowerShell)
+```powershell
+$env:PATH = "C:\Ruby33-x64\bin;C:\Ruby33-x64\bin\ruby_builtin_dlls;$env:PATH"
+ruby bin/rails server -u webrick
 # Tarayıcıda: http://localhost:3000
 ```
 
 ### Testleri Çalıştırma
-```bash
-# Tüm test paketini koşturma
+```powershell
+$env:PATH = "C:\Ruby33-x64\bin;C:\Ruby33-x64\bin\ruby_builtin_dlls;$env:PATH"
 ruby bin/rails test
-
-# Belirli bir test dosyasını koşturma (örnek: SLA testleri)
-ruby bin/rails test test/models/sla_time_test.rb
 ```
 
 ---
 
-## 6. Güvenlik ve Mimari Prensipler
-1. **Never Trust the Client:** İzin günü sayısı, bakiye yeterliliği ve onay yetkisi asla arayüzden gönderilen parametrelere bırakılmaz; sunucu tarafında model doğrulamaları ve ActiveRecord transaction blokları ile garantiye alınır.
-2. **Deterministic Time Simulation:** Zaman testleri sistem saatine bağımlı kılınmamış, `ActiveSupport::Testing::TimeHelpers` (`travel_to`) ile tam deterministik olarak kurgulanmıştır.
-3. **Graceful Degradation:** JavaScript devre dışı kalsa dahi Rails'in standart form submit akışı ve sunucu tarafı kontrolleri eksiksiz çalışır.
+## 9. Gelecek Geliştiriciler / Ajanlar İçin Notlar
+- İzin hesaplamalarında değişiklik yapılacaksa `app/models/leave_request.rb` içindeki `working_days_count` güncellenmelidir.
+- SLA sınırını değiştirmek için `LeaveRequest::SLA_LIMIT` sabiti tek bir yerden yönetilmektedir.
+- Tüm zaman simülasyonu testlerinde `travel_to` bloklarının sıralı açılmasına özen gösterilmelidir.
