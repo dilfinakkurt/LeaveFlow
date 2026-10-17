@@ -1,0 +1,191 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark);">
+      Hoş Geldiniz, <%= @user.name %> 👋
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      <%= @user.department %> Departmanı &bull; Rol: <strong><%= @user.role == 'manager' ? 'Yönetici' : 'Çalışan' %></strong>
+    </p>
+  </div>
+
+  <div>
+    <%= link_to new_leave_request_path, class: "btn btn-primary" do %>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Yeni İzin Talebi Oluştur
+    <% end %>
+  </div>
+</div>
+
+<% if @user.manager? %>
+  <!-- Manager SLA Highlight Banner -->
+  <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: none; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+            YÖNETİCİ KONTROL PANELİ
+          </span>
+          <% if @manager_overdue_count > 0 %>
+            <span class="badge badge-overdue">
+              ⚠️ <%= @manager_overdue_count %> Talep 48 Saatlik SLA Süresini Aştı!
+            </span>
+          <% end %>
+        </div>
+        <h2 style="font-size: 1.35rem; font-weight: 700;">Onay Bekleyen İzin Talepleri</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.25rem;">
+          Şu anda incelenmeyi bekleyen toplam <strong><%= @manager_pending_count %></strong> izin talebi bulunuyor.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <%= link_to manager_leave_requests_path, class: "btn btn-primary" do %>
+          Talepleri İncele & Onayla (<%= @manager_pending_count %>)
+        <% end %>
+
+        <% if @manager_overdue_count > 0 %>
+          <%= link_to manager_leave_requests_path(filter: "overdue"), class: "btn btn-danger btn-sm" do %>
+            Gecikmişleri Gör (<%= @manager_overdue_count %>)
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Leave Balance Summary Cards -->
+<div class="grid-2">
+  <div class="stat-card" style="border-left: 4px solid var(--primary);">
+    <div>
+      <div class="stat-title">Kalan Yıllık İzin Bakiyesi</div>
+      <div class="stat-value" style="color: var(--primary);"><%= @user.annual_leave_balance %> <span style="font-size: 1rem; font-weight: 500; color: var(--text-muted);">İş Günü</span></div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        Hafta sonları izin hesabına katılmaz.
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--primary-light); color: var(--primary);">
+      🌴
+    </div>
+  </div>
+
+  <div class="stat-card" style="border-left: 4px solid var(--secondary);">
+    <div>
+      <div class="stat-title">Kalan Hastalık İzni Bakiyesi</div>
+      <div class="stat-value" style="color: var(--secondary);"><%= @user.sick_leave_balance %> <span style="font-size: 1rem; font-weight: 500; color: var(--text-muted);">İş Günü</span></div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        Sağlık raporu gerektiren durumlar için.
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--secondary-light); color: var(--secondary);">
+      🏥
+    </div>
+  </div>
+</div>
+
+<!-- Request Counters -->
+<div class="grid-3">
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Bekleyen Taleplerim</div>
+      <div class="stat-value" style="color: #b45309;"><%= @pending_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #fef3c7; color: #b45309;">
+      ⏳
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Onaylanan Taleplerim</div>
+      <div class="stat-value" style="color: #047857;"><%= @approved_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #d1fae5; color: #047857;">
+      ✅
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Reddedilen Taleplerim</div>
+      <div class="stat-value" style="color: #b91c1c;"><%= @rejected_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #ffe4e6; color: #b91c1c;">
+      ❌
+    </div>
+  </div>
+</div>
+
+<!-- Recent Requests Section -->
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark);">Son İzin Taleplerim</h2>
+    <%= link_to "Tümünü Gör →", leave_requests_path, style: "color: var(--primary); font-size: 0.9rem; text-decoration: none; font-weight: 600;" %>
+  </div>
+
+  <% if @recent_requests.any? %>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>İzin Türü</th>
+            <th>Tarih Aralığı</th>
+            <th>İş Günü</th>
+            <th>Durum</th>
+            <th>Oluşturulma</th>
+            <th>SLA Durumu</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @recent_requests.each do |req| %>
+            <tr>
+              <td>
+                <strong><%= req.leave_type_label %></strong>
+              </td>
+              <td>
+                <%= req.start_date.strftime("%d.%m.%Y") %> &ndash; <%= req.end_date.strftime("%d.%m.%Y") %>
+              </td>
+              <td>
+                <span style="font-weight: 700;"><%= req.working_days_count %></span> gün
+              </td>
+              <td>
+                <span class="badge badge-<%= req.status %>">
+                  <%= req.status_label %>
+                </span>
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">
+                <%= req.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </td>
+              <td>
+                <% if req.pending? %>
+                  <% if req.overdue? %>
+                    <span class="badge badge-overdue" title="48 saatlik onay SLA süresi doldu">
+                      ⚠️ Gecikmiş (>48s)
+                    </span>
+                  <% else %>
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">
+                      Normal (<%= time_ago_in_words(req.created_at) %>)
+                    </span>
+                  <% end %>
+                <% else %>
+                  <span style="color: var(--text-muted); font-size: 0.8rem;">
+                    Karara bağlandı
+                  </span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to "Detay", leave_request_path(req), class: "btn btn-secondary btn-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-icon">📝</div>
+      <div class="empty-state-title">Henüz Bir İzin Talebiniz Yok</div>
+      <div class="empty-state-text">İhtiyaç duyduğunuzda yeni bir izin talebi oluşturabilir ve onay durumunu buradan takip edebilirsiniz.</div>
+      <%= link_to "İlk İzin Talebini Oluştur", new_leave_request_path, class: "btn btn-primary btn-sm" %>
+    </div>
+  <% end %>
+</div>

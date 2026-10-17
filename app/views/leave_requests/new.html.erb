@@ -1,0 +1,156 @@
+<div style="max-width: 720px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <%= link_to "← İzin Taleplerime Dön", leave_requests_path, style: "color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;" %>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-top: 0.5rem;">
+      Yeni İzin Talebi Oluştur
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Talebiniz kaydedildikten sonra doğrudan yöneticinizin onay paneline iletilecektir.
+    </p>
+  </div>
+
+  <!-- Smart Team Conflict Warning Banner (100 Puanlık Özellik) -->
+  <div id="conflict_warning_box" class="conflict-alert" style="<%= @team_conflicts.present? && @team_conflicts.any? ? '' : 'display: none;' %>">
+    <div class="conflict-alert-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Akıllı İzin Planlama Uyarısı: Ekip İçi İzin Çakışması Algılandı!
+    </div>
+    <div id="conflict_warning_content" class="conflict-alert-body">
+      <% if @team_conflicts.present? && @team_conflicts.any? %>
+        Seçtiğiniz tarih aralığında aynı departmandaki (<%= current_user.department %>) ekip arkadaşlarınızın onaylanmış izinleri bulunmaktadır:
+        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+          <% @team_conflicts.each do |c| %>
+            <li><strong><%= c.user.name %></strong>: <%= c.start_date.strftime("%d.%m.%Y") %> &ndash; <%= c.end_date.strftime("%d.%m.%Y") %> (<%= c.leave_type_label %>)</li>
+          <% end %>
+        </ul>
+        <span style="font-size: 0.8rem; color: #92400e; display: block; margin-top: 0.4rem;">
+          * Bu durum talebinizi oluşturmanıza engel değildir; ancak yöneticiniz onaylarken ekip kapsama durumunu göz önünde bulunduracaktır.
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <%= form_with model: @leave_request, url: leave_requests_path, local: true, id: "leave_request_form" do |f| %>
+      <% if @leave_request.errors.any? %>
+        <div style="background-color: #fee2e2; border: 1px solid #f87171; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <strong style="display: block; margin-bottom: 0.35rem;">Talep oluşturulurken bazı hatalar meydana geldi:</strong>
+          <ul style="margin-left: 1.5rem; font-size: 0.9rem;">
+            <% @leave_request.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Leave Type -->
+      <div class="form-group">
+        <%= f.label :leave_type, "İzin Türü", class: "form-label" %>
+        <%= f.select :leave_type,
+          [
+            ["Yıllık İzin (Kalan: #{current_user.annual_leave_balance} gün)", "annual"],
+            ["Hastalık İzni (Kalan: #{current_user.sick_leave_balance} gün)", "sick"],
+            ["Ücretsiz İzin (Limitsiz)", "unpaid"]
+          ],
+          {},
+          class: "form-control", id: "leave_type_select"
+        %>
+        <p class="form-hint">
+          Onaylanmayan (Beklemede veya Reddedilen) talepler izin bakiyenizi tüketmez.
+        </p>
+      </div>
+
+      <!-- Date Range (Grid 2) -->
+      <div class="grid-2" style="margin-bottom: 0;">
+        <div class="form-group">
+          <%= f.label :start_date, "Başlangıç Tarihi", class: "form-label" %>
+          <%= f.date_field :start_date, class: "form-control", id: "leave_start_date", required: true, min: Date.current %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :end_date, "Bitiş Tarihi", class: "form-label" %>
+          <%= f.date_field :end_date, class: "form-control", id: "leave_end_date", required: true, min: Date.current %>
+        </div>
+      </div>
+
+      <!-- Dynamic Calculation Info Card -->
+      <div style="background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Hesaplanan İzin Süresi:</span>
+          <strong id="working_days_display" style="font-size: 1.1rem; color: var(--primary); margin-left: 0.5rem;">
+            <%= @leave_request.working_days_count %> İş Günü
+          </strong>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-light); text-align: right;">
+          Hafta sonları (Cumartesi & Pazar) hesaba katılmaz.
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="form-group">
+        <%= f.label :reason, "İzin Gerekçesi / Açıklama", class: "form-label" %>
+        <%= f.text_area :reason, rows: 4, class: "form-control", placeholder: "İzin alma amacınızı ve gerekli detayları yazınız...", required: true %>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+        <%= link_to "İptal", leave_requests_path, class: "btn btn-secondary" %>
+        <%= f.submit "Talebi Gönder", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const startDateInput = document.getElementById("leave_start_date");
+    const endDateInput = document.getElementById("leave_end_date");
+    const workingDaysDisplay = document.getElementById("working_days_display");
+    const conflictBox = document.getElementById("conflict_warning_box");
+    const conflictContent = document.getElementById("conflict_warning_content");
+
+    function calculateWorkingDays(startDate, endDate) {
+      if (!startDate || !endDate || startDate > endDate) return 0;
+      let count = 0;
+      let cur = new Date(startDate);
+      const end = new Date(endDate);
+      while (cur <= end) {
+        const day = cur.getDay(); // 0: Sunday, 6: Saturday
+        if (day !== 0 && day !== 6) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+      return count;
+    }
+
+    function checkConflicts() {
+      const sVal = startDateInput.value;
+      const eVal = endDateInput.value;
+      if (!sVal || !eVal) return;
+
+      const days = calculateWorkingDays(sVal, eVal);
+      workingDaysDisplay.textContent = days + " İş Günü";
+
+      if (sVal > eVal) return;
+
+      fetch(`/leave_requests/check_conflicts?start_date=${sVal}&end_date=${eVal}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.conflicts && data.conflicts.length > 0) {
+            let html = `Seçtiğiniz tarih aralığında aynı departmandaki (${data.conflicts[0].department}) ekip arkadaşlarınızın onaylanmış izinleri bulunmaktadır:<ul style="margin-top: 0.5rem; margin-left: 1.5rem;">`;
+            data.conflicts.forEach(c => {
+              html += `<li><strong>${c.user_name}</strong>: ${c.start_date} &ndash; ${c.end_date} (${c.leave_type})</li>`;
+            });
+            html += `</ul><span style="font-size: 0.8rem; color: #92400e; display: block; margin-top: 0.4rem;">* Bu durum talebinizi oluşturmanıza engel değildir; ancak yöneticiniz onaylarken ekip kapsama durumunu göz önünde bulunduracaktır.</span>`;
+            conflictContent.innerHTML = html;
+            conflictBox.style.display = "block";
+          } else {
+            conflictBox.style.display = "none";
+          }
+        })
+        .catch(err => console.error("Conflict check error:", err));
+    }
+
+    startDateInput.addEventListener("change", checkConflicts);
+    endDateInput.addEventListener("change", checkConflicts);
+  });
+</script>

@@ -1,0 +1,148 @@
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <%= link_to "← Yönetici Onay Paneline Dön", manager_leave_requests_path, style: "color: var(--text-muted); text-decoration: none; font-size: 0.9rem;" %>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-top: 0.35rem;">
+        Talep İnceleme <span style="color: var(--text-muted); font-size: 1.25rem;">#<%= @leave_request.id %></span>
+      </h1>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span class="badge badge-<%= @leave_request.status %>" style="font-size: 0.95rem; padding: 0.35rem 0.85rem;">
+        <%= @leave_request.status_label %>
+      </span>
+
+      <% if @leave_request.overdue? %>
+        <span class="badge badge-overdue" style="font-size: 0.95rem; padding: 0.35rem 0.85rem;">
+          ⚠️ 48s SLA Gecikmiş
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @conflicting_requests.any? %>
+    <!-- Smart Team Conflict Warning Notice -->
+    <div class="conflict-alert">
+      <div class="conflict-alert-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Akıllı İzin Planlama Uyarısı: Ekip İçi Çakışma Tespit Edildi!
+      </div>
+      <div class="conflict-alert-body">
+        Bu taleple aynı departmanda (<strong><%= @leave_request.user.department %></strong>) çalışan ve çakışan tarihlerde <strong>onaylanmış</strong> izinleri bulunan ekip üyeleri:
+        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+          <% @conflicting_requests.each do |c| %>
+            <li>
+              <strong><%= c.user.name %></strong>: 
+              <%= c.start_date.strftime("%d.%m.%Y") %> &ndash; <%= c.end_date.strftime("%d.%m.%Y") %> 
+              (<%= c.leave_type_label %>, <%= c.working_days_count %> iş günü)
+            </li>
+          <% end %>
+        </ul>
+        <span style="font-size: 0.8rem; color: #92400e; display: block; margin-top: 0.4rem;">
+          * Yönetici Değerlendirmesi: Ekip iş yükünü ve proje teslimatlarını göz önünde bulundurarak talebi onaylayabilir veya ret gerekçesi belirterek reddedebilirsiniz.
+        </span>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      Başvuru & Çalışan Bilgileri
+    </h2>
+
+    <div class="grid-2">
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Çalışan</label>
+        <p style="font-weight: 700; font-size: 1.1rem;"><%= @leave_request.user.name %></p>
+        <p style="color: var(--text-muted); font-size: 0.85rem;"><%= @leave_request.user.email %></p>
+        <p style="color: var(--primary); font-size: 0.85rem; font-weight: 600;">Departman: <%= @leave_request.user.department %></p>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">İzin Bakiyesi Durumu</label>
+        <p style="font-size: 0.95rem;">Kalan Yıllık İzin: <strong><%= @leave_request.user.annual_leave_balance %> gün</strong></p>
+        <p style="font-size: 0.95rem;">Kalan Hastalık İzni: <strong><%= @leave_request.user.sick_leave_balance %> gün</strong></p>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Talep Edilen Tarihler</label>
+        <p style="font-weight: 700; font-size: 1.05rem;">
+          <%= @leave_request.start_date.strftime("%d %B %Y") %> &ndash; <%= @leave_request.end_date.strftime("%d %B %Y") %>
+        </p>
+        <span style="color: var(--primary); font-weight: 700;">
+          Hesaplanan Süre: <%= @leave_request.working_days_count %> İş Günü (Hafta sonları hariç)
+        </span>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">SLA Zaman Takibi</label>
+        <% if @leave_request.pending? %>
+          <% if @leave_request.overdue? %>
+            <p style="color: #b91c1c; font-weight: 700;">⚠️ 48 SAATLİK SLA SÜRESİ DOLDU (GECİKMİŞ)</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Talebin oluşturulmasından bu yana <%= time_ago_in_words(@leave_request.created_at) %> geçti.</span>
+          <% else %>
+            <p style="color: #047857; font-weight: 600;">✓ SLA Süresi İçinde</p>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">SLA bitimine <%= distance_of_time_in_words(Time.current, @leave_request.created_at + 48.hours) %> kaldı.</span>
+          <% end %>
+        <% else %>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Karara bağlandı.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+      <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">İzin Açıklaması / Gerekçe</label>
+      <div style="background-color: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.95rem; line-height: 1.6;">
+        <%= simple_format(@leave_request.reason) %>
+      </div>
+    </div>
+
+    <% if @leave_request.decided? %>
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+        <h3 style="font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem;">
+          Karar Kaydı
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+          Karar: <strong><%= @leave_request.status_label %></strong> &bull;
+          Yönetici: <strong><%= @leave_request.decided_by&.name || 'Belirtilmedi' %></strong> &bull;
+          Tarih: <strong><%= @leave_request.decided_at&.strftime("%d.%m.%Y saat %H:%M") || 'Belirtilmedi' %></strong>
+        </p>
+
+        <% if @leave_request.rejection_reason.present? %>
+          <div style="margin-top: 0.75rem; background-color: #fff1f2; border: 1px solid #fecdd3; padding: 0.75rem 1rem; border-radius: 8px;">
+            <strong style="color: #9f1239; font-size: 0.85rem;">Belirtilen Ret Gerekçesi:</strong>
+            <p style="color: #881337; margin-top: 0.25rem; font-size: 0.9rem;"><%= @leave_request.rejection_reason %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @leave_request.pending? %>
+      <!-- Decision Action Card -->
+      <div style="margin-top: 2rem; padding: 1.5rem; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 0.5rem;">
+          Yönetici Kararı
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Talebi onayladığınızda çalışanın izin bakiyesinden <strong><%= @leave_request.working_days_count %> iş günü</strong> otomatik olarak düşülecektir. Reddedilen taleplerde bakiye düşülmez.
+        </p>
+
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;">
+          <%= button_to approve_manager_leave_request_path(@leave_request), method: :patch, class: "btn btn-success", style: "padding: 0.75rem 1.5rem; font-size: 1rem;", data: { turbo_confirm: "#{@leave_request.user.name} çalışanının #{@leave_request.working_days_count} günlük izin talebini onaylamak istediğinize emin misiniz?" } do %>
+            ✓ Talebi Onayla
+          <% end %>
+
+          <div style="flex: 1; min-width: 300px;">
+            <%= form_with url: reject_manager_leave_request_path(@leave_request), method: :patch, local: true do |rf| %>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <%= rf.label :rejection_reason, "Ret Gerekçesi (Zorunlu)", class: "form-label" %>
+                <%= rf.text_area :rejection_reason, rows: 2, class: "form-control", placeholder: "Çalışanın göreceği ret gerekçesini yazınız...", required: true %>
+              </div>
+              <%= rf.submit "✗ Talebi Reddet", class: "btn btn-danger", style: "width: 100%;" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

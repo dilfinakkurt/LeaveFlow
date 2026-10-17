@@ -1,0 +1,120 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark);">
+      İzin Taleplerim
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Geçmiş ve mevcut tüm izin başvurularınızın durumunu buradan takip edebilirsiniz.
+    </p>
+  </div>
+
+  <%= link_to new_leave_request_path, class: "btn btn-primary" do %>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    Yeni İzin Talebi
+  <% end %>
+</div>
+
+<!-- Balance Cards -->
+<div class="grid-3" style="margin-bottom: 1.5rem;">
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Bekleyen Başvurular</div>
+      <div class="stat-value" style="color: #b45309;"><%= @pending_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #fef3c7; color: #b45309;">⏳</div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Onaylanan Başvurular</div>
+      <div class="stat-value" style="color: #047857;"><%= @approved_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #d1fae5; color: #047857;">✅</div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-title">Reddedilen Başvurular</div>
+      <div class="stat-value" style="color: #b91c1c;"><%= @rejected_count %></div>
+    </div>
+    <div class="stat-icon" style="background-color: #ffe4e6; color: #b91c1c;">❌</div>
+  </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+  <% if @leave_requests.any? %>
+    <div class="table-container" style="border: none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Talep No</th>
+            <th>İzin Türü</th>
+            <th>Tarih Aralığı</th>
+            <th>İş Günü</th>
+            <th>Durum</th>
+            <th>Oluşturulma</th>
+            <th>SLA / Karar Zamanı</th>
+            <th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @leave_requests.each do |req| %>
+            <tr>
+              <td>
+                <span style="font-family: monospace; font-weight: 700; color: var(--text-muted);">#<%= req.id %></span>
+              </td>
+              <td>
+                <strong><%= req.leave_type_label %></strong>
+              </td>
+              <td>
+                <%= req.start_date.strftime("%d.%m.%Y") %> &ndash; <%= req.end_date.strftime("%d.%m.%Y") %>
+              </td>
+              <td>
+                <strong style="color: var(--primary);"><%= req.working_days_count %></strong> gün
+              </td>
+              <td>
+                <span class="badge badge-<%= req.status %>">
+                  <%= req.status_label %>
+                </span>
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">
+                <%= req.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </td>
+              <td>
+                <% if req.pending? %>
+                  <% if req.overdue? %>
+                    <span class="badge badge-overdue" title="48 saatlik onay SLA süresi aşıldı">
+                      ⚠️ Gecikmiş (>48s)
+                    </span>
+                  <% else %>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">
+                      Bekliyor (<%= time_ago_in_words(req.created_at) %>)
+                    </span>
+                  <% end %>
+                <% elsif req.approved? %>
+                  <span style="color: #047857; font-size: 0.85rem;">
+                    <%= req.decided_at ? req.decided_at.strftime("%d.%m.%Y %H:%M") : 'Onaylandı' %>
+                  </span>
+                <% elsif req.rejected? %>
+                  <span style="color: #b91c1c; font-size: 0.85rem;">
+                    <%= req.decided_at ? req.decided_at.strftime("%d.%m.%Y %H:%M") : 'Reddedildi' %>
+                  </span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to "Detay", leave_request_path(req), class: "btn btn-secondary btn-sm" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <div class="empty-state-title">Kayıtlı İzin Talebi Bulunmuyor</div>
+      <div class="empty-state-text">Henüz herhangi bir izin başvurusunda bulunmadınız.</div>
+      <%= link_to "Yeni İzin Talebi Oluştur", new_leave_request_path, class: "btn btn-primary btn-sm" %>
+    </div>
+  <% end %>
+</div>

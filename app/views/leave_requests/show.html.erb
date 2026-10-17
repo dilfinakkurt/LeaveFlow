@@ -1,0 +1,155 @@
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <%= link_to "← Listeye Dön", current_user.manager? && request.referer&.include?("manager") ? manager_leave_requests_path : leave_requests_path, style: "color: var(--text-muted); text-decoration: none; font-size: 0.9rem;" %>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-top: 0.35rem;">
+        İzin Talebi Detayı <span style="color: var(--text-muted); font-size: 1.25rem;">#<%= @leave_request.id %></span>
+      </h1>
+    </div>
+
+    <div>
+      <span class="badge badge-<%= @leave_request.status %>" style="font-size: 0.95rem; padding: 0.35rem 0.85rem;">
+        <%= @leave_request.status_label %>
+      </span>
+
+      <% if @leave_request.overdue? %>
+        <span class="badge badge-overdue" style="font-size: 0.95rem; padding: 0.35rem 0.85rem; margin-left: 0.5rem;">
+          ⚠️ 48s SLA Gecikmiş
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @conflicting_requests.any? %>
+    <!-- Smart Team Conflict Warning Notice -->
+    <div class="conflict-alert">
+      <div class="conflict-alert-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Akıllı İzin Planlama Uyarısı: Ekip İçi Çakışma Tespit Edildi
+      </div>
+      <div class="conflict-alert-body">
+        Bu taleple aynı departmanda (<%= @leave_request.user.department %>) ve çakışan tarihlerde onaylanmış diğer izinler bulunmaktadır:
+        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+          <% @conflicting_requests.each do |c| %>
+            <li><strong><%= c.user.name %></strong>: <%= c.start_date.strftime("%d.%m.%Y") %> &ndash; <%= c.end_date.strftime("%d.%m.%Y") %> (<%= c.leave_type_label %>)</li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      Başvuru Bilgileri
+    </h2>
+
+    <div class="grid-2">
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Çalışan</label>
+        <p style="font-weight: 700; font-size: 1.05rem;"><%= @leave_request.user.name %></p>
+        <p style="color: var(--text-muted); font-size: 0.85rem;"><%= @leave_request.user.email %> &bull; <%= @leave_request.user.department %></p>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">İzin Türü</label>
+        <p style="font-weight: 700; font-size: 1.05rem;"><%= @leave_request.leave_type_label %></p>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Tarih Aralığı</label>
+        <p style="font-weight: 700; font-size: 1.05rem;">
+          <%= @leave_request.start_date.strftime("%d %B %Y") %> &ndash; <%= @leave_request.end_date.strftime("%d %B %Y") %>
+        </p>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Hesaplanan Süre</label>
+        <p style="font-weight: 700; font-size: 1.05rem; color: var(--primary);">
+          <%= @leave_request.working_days_count %> İş Günü
+        </p>
+        <span style="font-size: 0.75rem; color: var(--text-light);">(Hafta sonları dahil edilmemiştir)</span>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Başvuru Zamanı</label>
+        <p style="font-size: 0.95rem;"><%= @leave_request.created_at.strftime("%d.%m.%Y saat %H:%M") %></p>
+        <span style="font-size: 0.75rem; color: var(--text-light);"><%= time_ago_in_words(@leave_request.created_at) %> önce</span>
+      </div>
+
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">48 Saatlik Onay SLA'sı</label>
+        <% if @leave_request.pending? %>
+          <% if @leave_request.overdue? %>
+            <p style="color: #b91c1c; font-weight: 700;">⚠️ Gecikmiş (48 saat aşıldı)</p>
+          <% else %>
+            <p style="color: #047857; font-weight: 600;">SLA Süresi İçinde (Kalan: <%= distance_of_time_in_words(Time.current, @leave_request.created_at + 48.hours) %>)</p>
+          <% end %>
+        <% else %>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Karara bağlandığı için SLA pasif</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+      <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">İzin Gerekçesi</label>
+      <div style="background-color: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.95rem; line-height: 1.6;">
+        <%= simple_format(@leave_request.reason) %>
+      </div>
+    </div>
+
+    <% if @leave_request.decided? %>
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+        <h3 style="font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem;">
+          Yönetici Karar Detayları
+        </h3>
+        
+        <div class="grid-2">
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Kararı Veren Yönetici:</span>
+            <p style="font-weight: 600;"><%= @leave_request.decided_by&.name || 'Belirtilmedi' %></p>
+          </div>
+
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">Karar Tarihi:</span>
+            <p style="font-weight: 600;"><%= @leave_request.decided_at&.strftime("%d.%m.%Y saat %H:%M") || 'Belirtilmedi' %></p>
+          </div>
+        </div>
+
+        <% if @leave_request.rejection_reason.present? %>
+          <div style="margin-top: 0.75rem; background-color: #fff1f2; border: 1px solid #fecdd3; padding: 0.75rem 1rem; border-radius: 8px;">
+            <strong style="color: #9f1239; font-size: 0.85rem;">Ret Gerekçesi:</strong>
+            <p style="color: #881337; margin-top: 0.25rem; font-size: 0.9rem;"><%= @leave_request.rejection_reason %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if current_user.manager? && @leave_request.pending? %>
+      <!-- Manager Quick Decision Bar in Detail View -->
+      <div style="margin-top: 2rem; padding: 1.5rem; background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem;">
+          Yönetici İşlemleri
+        </h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Çalışanın mevcut yıllık izin bakiyesi: <strong><%= @leave_request.user.annual_leave_balance %> gün</strong>.
+          Onaylandığında bakiyeden <strong><%= @leave_request.working_days_count %> gün</strong> otomatik olarak düşülecektir.
+        </p>
+
+        <div style="display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;">
+          <%= button_to approve_manager_leave_request_path(@leave_request), method: :patch, class: "btn btn-success", data: { turbo_confirm: "#{@leave_request.user.name} çalışanının iznini onaylamak istiyor musunuz?" } do %>
+            ✓ Talebi Onayla
+          <% end %>
+
+          <div style="flex: 1; min-width: 280px;">
+            <%= form_with url: reject_manager_leave_request_path(@leave_request), method: :patch, local: true do |rf| %>
+              <div style="display: flex; gap: 0.5rem;">
+                <%= rf.text_field :rejection_reason, placeholder: "Ret gerekçesi yazınız...", class: "form-control", required: true, style: "flex: 1;" %>
+                <%= rf.submit "✗ Reddet", class: "btn btn-danger" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

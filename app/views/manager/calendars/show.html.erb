@@ -1,0 +1,102 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark);">
+      Onaylı İzinler Takvimi
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Tüm departmanların onaylanmış izin takvimini görüntüleyin ve ekip planlamasını kolaylaştırın.
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; align-items: center;">
+    <!-- Department Filter -->
+    <%= form_with url: manager_calendar_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do |f| %>
+      <%= f.hidden_field :month, value: @month.to_s %>
+      <%= f.select :department,
+        options_for_select([["Tüm Departmanlar", ""]] + @departments.map { |d| [d, d] }, @department),
+        {},
+        class: "form-control", style: "padding: 0.4rem 0.75rem; font-size: 0.85rem;", onchange: "this.form.submit()"
+      %>
+    <% end %>
+
+    <!-- Month Navigation -->
+    <div style="display: flex; gap: 0.35rem; align-items: center; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.25rem;">
+      <%= link_to manager_calendar_path(month: (@month - 1.month).to_s, department: @department), class: "btn btn-secondary btn-sm", style: "border: none;" do %>
+        ← Önceki
+      <% end %>
+      <strong style="padding: 0 0.75rem; font-size: 0.95rem; color: var(--dark);">
+        <%= @month.strftime("%B %Y") %>
+      </strong>
+      <%= link_to manager_calendar_path(month: (@month + 1.month).to_s, department: @department), class: "btn btn-secondary btn-sm", style: "border: none;" do %>
+        Sonraki →
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="padding: 1.5rem;">
+  <!-- Calendar Grid Header -->
+  <div class="calendar-grid">
+    <div class="calendar-header">Pazartesi</div>
+    <div class="calendar-header">Salı</div>
+    <div class="calendar-header">Çarşamba</div>
+    <div class="calendar-header">Perşembe</div>
+    <div class="calendar-header">Cuma</div>
+    <div class="calendar-header" style="background-color: #fee2e2; color: #991b1b;">Cumartesi</div>
+    <div class="calendar-header" style="background-color: #fee2e2; color: #991b1b;">Pazar</div>
+
+    <% 
+      # Calculate grid offsets
+      first_day = @month.beginning_of_month
+      last_day = @month.end_of_month
+      
+      # Beginning of week is Monday (wday 1, but in ruby sunday is 0)
+      start_offset = (first_day.wday == 0 ? 7 : first_day.wday) - 1
+      end_offset = 7 - (last_day.wday == 0 ? 7 : last_day.wday)
+    %>
+
+    <!-- Empty padding cells before month start -->
+    <% start_offset.times do %>
+      <div class="calendar-cell" style="background-color: #f8fafc; opacity: 0.4;"></div>
+    <% end %>
+
+    <!-- Days of the month -->
+    <% (first_day..last_day).each do |day| %>
+      <% is_weekend = day.saturday? || day.sunday? %>
+      <div class="calendar-cell <%= 'weekend' if is_weekend %>">
+        <div class="calendar-day-num" style="<%= 'color: #ef4444;' if is_weekend %>">
+          <%= day.day %>
+        </div>
+
+        <% 
+          # Find leaves that cover this day
+          day_leaves = @approved_leaves.select { |l| l.start_date <= day && l.end_date >= day }
+        %>
+        <% day_leaves.each do |leave| %>
+          <a href="<%= leave_request_path(leave) %>" class="calendar-leave-chip" title="<%= leave.user.name %> (<%= leave.user.department %>) - <%= leave.leave_type_label %>" style="text-decoration: none;">
+            👤 <%= leave.user.name %>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Empty padding cells after month end -->
+    <% end_offset.times do %>
+      <div class="calendar-cell" style="background-color: #f8fafc; opacity: 0.4;"></div>
+    <% end %>
+  </div>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="display: inline-block; width: 12px; height: 12px; background-color: #d1fae5; border-radius: 3px;"></span>
+        <span>Onaylanmış İzin</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="display: inline-block; width: 12px; height: 12px; background-color: #fee2e2; border-radius: 3px;"></span>
+        <span>Hafta Sonu (İzin hesabına katılmaz)</span>
+      </div>
+    </div>
+    <span>Toplam <strong><%= @approved_leaves.count %></strong> onaylı izin dönemi</span>
+  </div>
+</div>
