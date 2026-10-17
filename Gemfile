@@ -2,6 +2,11 @@ source "https://rubygems.org"
 
 gem "rails", "~> 8.1.4"
 gem "propshaft"
+gem "webrick"
+
+group :production do
+  gem "puma", ">= 5.0"
+end
 
 # Database adapters (PostgreSQL for Production & CI, SQLite3 for local dev/testing)
 gem "pg", "~> 1.7"
