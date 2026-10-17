@@ -9,7 +9,7 @@ services:
     name: leaveflow
     runtime: ruby
     plan: free
-    buildCommand: "./bin/render-build.sh"
+    buildCommand: "bash ./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
       - key: DATABASE_URL
@@ -17,7 +17,7 @@ services:
           name: leaveflow-db
           property: connectionString
       - key: RAILS_MASTER_KEY
-        sync: false
+        value: "6591b1c01dbc86c1c7ee5986c52fa20d"
       - key: RAILS_SERVE_STATIC_FILES
         value: "true"
       - key: RAILS_LOG_TO_STDOUT
