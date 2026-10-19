@@ -9,7 +9,8 @@ development:
 
 test:
   <<: *default
-  database: <%= ENV["DATABASE_URL"].present? ? "leave_flow_test" : "storage/test.sqlite3" %>
+  database: <%= ENV["DATABASE_URL"].present? ? "leaveflow_test" : "storage/test.sqlite3" %>
+  url: <%= ENV["DATABASE_URL"] %>
 
 production:
   adapter: postgresql
