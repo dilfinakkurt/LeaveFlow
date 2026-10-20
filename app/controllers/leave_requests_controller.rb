@@ -20,6 +20,7 @@ class LeaveRequestsController < ApplicationController
       start_date: Date.current + 1.day,
       end_date: Date.current + 3.days
     )
+    @colleagues = User.where.not(id: current_user.id).order(:name)
     load_conflicts_for_preview
   end
 
@@ -58,6 +59,7 @@ class LeaveRequestsController < ApplicationController
       end
       redirect_to leave_request_path(@leave_request)
     else
+      @colleagues = User.where.not(id: current_user.id).order(:name)
       load_conflicts_for_preview
       flash.now[:alert] = "Lütfen formdaki hataları kontrol ediniz."
       render :new, status: :unprocessable_entity
@@ -80,7 +82,7 @@ class LeaveRequestsController < ApplicationController
   end
 
   def leave_request_params
-    params.require(:leave_request).permit(:leave_type, :start_date, :end_date, :reason)
+    params.require(:leave_request).permit(:leave_type, :start_date, :end_date, :reason, :backup_user_id, :handover_notes)
   end
 
   def load_conflicts_for_preview

@@ -1,0 +1,198 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark);">
+      📊 Ekip Kapsama ve İzin Dönüş Analitiği
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Yönetici Kontrol Merkezi &bull; Aktif ekip kapasitesi, teslimat riskleri ve işe dönüş iş yükü analizi.
+    </p>
+  </div>
+
+  <!-- Department Filter -->
+  <div>
+    <%= form_with url: manager_analytics_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+      <%= select_tag :department, options_for_select([["Tüm Departmanlar", ""]] + @departments.map { |d| [d, d] }, @selected_department), class: "form-control", style: "width: auto; padding: 0.4rem 0.75rem;", onchange: "this.form.submit();" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- 1. Top Capacity Indicators -->
+<div class="grid-3" style="margin-bottom: 1.5rem;">
+  <!-- Capacity Score Card -->
+  <div class="stat-card" style="border-left: 4px solid <%= @analytics[:capacity_status][:color] %>;">
+    <div>
+      <div class="stat-title">Aktif Ekip Kapasitesi</div>
+      <div class="stat-value" style="color: <%= @analytics[:capacity_status][:color] %>;">
+        %<%= @analytics[:capacity_percentage] %>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <span class="badge <%= @analytics[:capacity_status][:badge_class] %>"><%= @analytics[:capacity_status][:label] %></span>
+        &bull; <%= @analytics[:active_working_count] %> / <%= @analytics[:total_employees] %> çalışan aktif
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: <%= @analytics[:capacity_status][:color] %>15; color: <%= @analytics[:capacity_status][:color] %>;">
+      📈
+    </div>
+  </div>
+
+  <!-- Currently on Leave -->
+  <div class="stat-card" style="border-left: 4px solid var(--primary);">
+    <div>
+      <div class="stat-title">Bugün İzinli Çalışanlar</div>
+      <div class="stat-value" style="color: var(--primary);">
+        <%= @analytics[:on_leave_count] %>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <%= @analytics[:department].presence || "Tüm Departmanlar" %>
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--primary-light); color: var(--primary);">
+      🌴
+    </div>
+  </div>
+
+  <!-- Handover Backup Coverage -->
+  <div class="stat-card" style="border-left: 4px solid var(--secondary);">
+    <div>
+      <div class="stat-title">Yedek Çalışan Kapsamı</div>
+      <div class="stat-value" style="color: var(--secondary);">
+        %<%= @analytics[:backup_coverage_rate] %>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <% if @analytics[:unbacked_leaves].any? %>
+          ⚠️ <%= @analytics[:unbacked_leaves].count %> izinde yedek çalışan atanmadı
+        <% else %>
+          Tüm izinler vekalet korumalı ✓
+        <% end %>
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--secondary-light); color: var(--secondary);">
+      🤝
+    </div>
+  </div>
+</div>
+
+<!-- 2. Project & Deadline Delay Risks Section -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark);">
+      ⚠️ İzin Sürecinde Teslim Tarihi & Proje Gecikme Riskleri (<%= @analytics[:project_delay_risks].size %>)
+    </h2>
+    <span style="font-size: 0.8rem; color: var(--text-muted);">Çalışan izindeyken teslim tarihi gelen veya acil atanan işler</span>
+  </div>
+
+  <% if @analytics[:project_delay_risks].any? %>
+    <div class="events-timeline">
+      <% @analytics[:project_delay_risks].each do |risk| %>
+        <div class="event-card event-severity-urgent">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span class="badge badge-overdue">GECİKME RİSKİ</span>
+                <strong><%= risk[:event].title %></strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">(İzindeki Çalışan: <strong><%= risk[:user].name %></strong>)</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.25rem;"><%= risk[:event].description %></p>
+              <div style="font-size: 0.8rem; color: var(--text-light);">
+                İzin Tarihleri: <%= risk[:leave_request].start_date.strftime("%d.%m.%Y") %> - <%= risk[:leave_request].end_date.strftime("%d.%m.%Y") %> &bull; Kaynak: <%= risk[:event].source_record %>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <% if risk[:backup_user] %>
+                <span class="badge badge-normal" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">
+                  🤝 Yedek: <strong><%= risk[:backup_user].name %></strong>
+                </span>
+                <div style="font-size: 0.75rem; color: #10b981; margin-top: 0.25rem;">İş devri aktif</div>
+              <% else %>
+                <span class="badge badge-urgent" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">
+                  ⚠️ Yedek Çalışan Yok!
+                </span>
+                <div style="font-size: 0.75rem; color: #ef4444; margin-top: 0.25rem;">Acil vekil atanmalı</div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">
+      🎉 İzindeki çalışanların projelerinde herhangi bir teslim tarihi çakışması veya gecikme riski algılanmadı.
+    </div>
+  <% end %>
+</div>
+
+<!-- 3. Return Workload Surge / Backlog Index -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div>
+      <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark);">
+        📈 İşe Dönüş İş Yükü Birikim Analizi
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">
+        Son 7 gün içinde izinden dönen çalışanların izin süresinde biriken iş hacmi ve stres endeksi
+      </p>
+    </div>
+  </div>
+
+  <% if @analytics[:return_surge_analysis].any? %>
+    <div style="overflow-x: auto;">
+      <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border-color); text-align: left; font-size: 0.85rem; color: var(--text-muted);">
+            <th style="padding: 0.75rem;">Çalışan</th>
+            <th style="padding: 0.75rem;">İzin Dönemi</th>
+            <th style="padding: 0.75rem;">Biriken Olaylar</th>
+            <th style="padding: 0.75rem;">Acil Görevler</th>
+            <th style="padding: 0.75rem;">Yedek Çalışan</th>
+            <th style="padding: 0.75rem;">İş Yükü Seviyesi</th>
+            <th style="padding: 0.75rem;">İşe Dönüş Özeti</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @analytics[:return_surge_analysis].each do |item| %>
+            <tr style="border-bottom: 1px solid var(--border-light); font-size: 0.9rem;">
+              <td style="padding: 0.75rem;">
+                <strong><%= item[:user].name %></strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);"><%= item[:user].department %></div>
+              </td>
+              <td style="padding: 0.75rem; font-size: 0.85rem;">
+                <%= item[:leave_request].start_date.strftime("%d.%m.%Y") %> - <%= item[:leave_request].end_date.strftime("%d.%m.%Y") %>
+              </td>
+              <td style="padding: 0.75rem;">
+                <strong><%= item[:total_events] %></strong> olay
+              </td>
+              <td style="padding: 0.75rem;">
+                <% if item[:urgent_events] > 0 %>
+                  <span style="color: #ef4444; font-weight: 700;">⚠️ <%= item[:urgent_events] %> acil</span>
+                <% else %>
+                  <span style="color: #10b981;">0</span>
+                <% end %>
+              </td>
+              <td style="padding: 0.75rem;">
+                <% if item[:leave_request].backup_user %>
+                  <span class="badge badge-normal">🤝 <%= item[:leave_request].backup_user.name %></span>
+                <% else %>
+                  <span style="color: var(--text-light); font-size: 0.8rem;">Atanmadı</span>
+                <% end %>
+              </td>
+              <td style="padding: 0.75rem;">
+                <span class="badge <%= item[:surge_level][:badge_class] %>"><%= item[:surge_level][:label] %></span>
+              </td>
+              <td style="padding: 0.75rem;">
+                <% if item[:has_summary] %>
+                  <span style="color: #10b981; font-weight: 600; font-size: 0.85rem;">✓ Hazırlandı</span>
+                <% else %>
+                  <span style="color: #f59e0b; font-size: 0.85rem;">⏳ Henüz Hazırlanmadı</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+      Son 7 gün içinde izinden dönen çalışan bulunmuyor.
+    </div>
+  <% end %>
+</div>

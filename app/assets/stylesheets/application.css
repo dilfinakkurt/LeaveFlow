@@ -548,3 +548,235 @@ footer {
   color: var(--text-muted);
   margin-top: auto;
 }
+
+
+/* =====================================================
+   AI Leave Assistant — Styles
+   ===================================================== */
+
+/* Summary Section */
+.summary-section {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.summary-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.summary-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 0.75rem;
+}
+
+.summary-item {
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.summary-item:last-child {
+  margin-bottom: 0;
+}
+
+.summary-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.summary-item-desc {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 0.25rem;
+}
+
+.summary-item-meta {
+  color: var(--text-light);
+  font-size: 0.78rem;
+}
+
+/* Event Timeline */
+.events-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-card {
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.2s;
+}
+
+.event-card:hover {
+  border-color: var(--primary);
+}
+
+.event-severity-urgent {
+  border-left: 4px solid #ef4444;
+  background: #fef2f2;
+}
+
+.event-severity-important {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+}
+
+.event-severity-normal {
+  border-left: 4px solid var(--border-color);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.badge-urgent {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-important {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-normal {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.badge-info {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.badge-demo {
+  background: #f3e8ff;
+  color: #7c3aed;
+  border: 1px dashed #c4b5fd;
+}
+
+.badge-overdue {
+  background: var(--status-overdue-bg);
+  color: var(--status-overdue-text);
+}
+
+/* Notification Items */
+.notification-item {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 0.5rem;
+  background: var(--bg-card);
+  transition: background-color 0.2s;
+}
+
+.notification-item:last-child {
+  margin-bottom: 0;
+}
+
+.notification-unread {
+  background: #f0fdf4;
+  border-color: var(--primary-border);
+}
+
+.notification-item:hover {
+  background: var(--bg-page);
+}
+
+/* AI Assistant Responsive */
+@media (max-width: 768px) {
+  .summary-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
+/* AI Chat Box & Message Styles */
+.chat-history-container {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chat-bubble {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  max-width: 90%;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.chat-bubble-assistant {
+  align-self: flex-start;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--secondary);
+}
+
+.chat-bubble-user {
+  align-self: flex-end;
+  background: var(--secondary-light);
+  border: 1px solid #c7d2fe;
+  flex-direction: row-reverse;
+}
+
+.chat-avatar {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.chat-content {
+  flex: 1;
+}
+
+.quick-question-btn {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--dark);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.quick-question-btn:hover {
+  background: var(--secondary-light);
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

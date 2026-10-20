@@ -1,0 +1,474 @@
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--dark);">
+      🤖 AI İzin Asistanı
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      İzin sürecinizde gerçekleşen iş gelişmelerini takip eden ve işe dönüşünüzde kişiselleştirilmiş özet sunan akıllı asistanınız.
+    </p>
+  </div>
+</div>
+
+<%# ========== LEAVE STATUS BANNER ========== %>
+<% if @active_leave %>
+  <div class="card" style="background: linear-gradient(135deg, #059669 0%, #0284c7 100%); color: white; border: none; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span style="background: rgba(255,255,255,0.2); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 9999px;">
+          🛫 AKTİF İZİN
+        </span>
+        <h2 style="font-size: 1.25rem; font-weight: 700; margin-top: 0.5rem;">Şu anda izindesiniz!</h2>
+        <p style="color: rgba(255,255,255,0.85); font-size: 0.9rem; margin-top: 0.25rem;">
+          <%= @active_leave.leave_type_label %> &bull;
+          <%= @active_leave.start_date.strftime("%d.%m.%Y") %> – <%= @active_leave.end_date.strftime("%d.%m.%Y") %>
+          (<%= @active_leave.working_days_count %> iş günü)
+          <% if @active_leave.backup_user %>
+            &bull; 🤝 Yedek: <strong><%= @active_leave.backup_user.name %></strong>
+          <% end %>
+        </p>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-size: 2rem; font-weight: 800;"><%= (@active_leave.end_date - Date.current).to_i %></div>
+        <div style="font-size: 0.8rem; opacity: 0.85;">Gün Kaldı</div>
+      </div>
+    </div>
+  </div>
+<% elsif @recent_past_leaves.present? %>
+  <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: none; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 9999px;">
+          ✅ İŞE DÖNÜŞ
+        </span>
+        <h2 style="font-size: 1.25rem; font-weight: 700; margin-top: 0.5rem;">Hoş Geldiniz, <%= @user.name %>! 👋</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.25rem;">
+          Son izniniz: <%= @target_leave.start_date.strftime("%d.%m.%Y") %> – <%= @target_leave.end_date.strftime("%d.%m.%Y") %>
+          (<%= @target_leave.leave_type_label %>)
+          <% if @target_leave.backup_user %>
+            &bull; <span style="color: #6ee7b7;">🤝 Yedek Çalışan: <%= @target_leave.backup_user.name %></span>
+          <% end %>
+        </p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <% unless @summary %>
+          <%= form_with url: generate_summary_path, method: :post, local: true do %>
+            <%= hidden_field_tag :leave_request_id, @target_leave.id %>
+            <%= submit_tag "İşe Dönüş Özetimi Oluştur ✨", class: "btn btn-primary" %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% elsif @upcoming_leaves.present? %>
+  <div class="card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; margin-bottom: 1.5rem;">
+    <div>
+      <span style="background: rgba(255,255,255,0.2); font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 9999px;">
+        🌴 YAKLAŞAN İZİN
+      </span>
+      <h2 style="font-size: 1.25rem; font-weight: 700; margin-top: 0.5rem;">
+        İzninize <%= (@upcoming_leaves.first.start_date - Date.current).to_i %> gün kaldı
+      </h2>
+      <p style="color: rgba(255,255,255,0.85); font-size: 0.9rem; margin-top: 0.25rem;">
+        <%= @upcoming_leaves.first.leave_type_label %> &bull;
+        <%= @upcoming_leaves.first.start_date.strftime("%d.%m.%Y") %> – <%= @upcoming_leaves.first.end_date.strftime("%d.%m.%Y") %>
+      </p>
+    </div>
+  </div>
+<% else %>
+  <div class="card" style="text-align: center; padding: 3rem 2rem; margin-bottom: 1.5rem;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📋</div>
+    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--dark); margin-bottom: 0.5rem;">Aktif veya Yaklaşan İzniniz Bulunmuyor</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+      AI Asistanınız, onaylanmış izin kayıtlarınızı takip eder. İzin döneminizdeki iş gelişmelerini izler ve işe dönüşünüzde size kişiselleştirilmiş özet sunar.
+    </p>
+    <%= link_to new_leave_request_path, class: "btn btn-primary" do %>
+      Yeni İzin Talebi Oluştur
+    <% end %>
+  </div>
+<% end %>
+
+<%# ========== STATS CARDS ========== %>
+<% if @target_leave %>
+<div class="grid-3" style="margin-bottom: 1.5rem;">
+  <div class="stat-card" style="border-left: 4px solid var(--primary);">
+    <div>
+      <div class="stat-title">İzin Süresi</div>
+      <div class="stat-value" style="color: var(--primary);"><%= @target_leave.working_days_count %> <span style="font-size: 1rem; font-weight: 500; color: var(--text-muted);">İş Günü</span></div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <%= @target_leave.start_date.strftime("%d.%m.%Y") %> – <%= @target_leave.end_date.strftime("%d.%m.%Y") %>
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--primary-light); color: var(--primary);">
+      📅
+    </div>
+  </div>
+
+  <div class="stat-card" style="border-left: 4px solid var(--secondary);">
+    <div>
+      <div class="stat-title">Kaydedilen Gelişme</div>
+      <div class="stat-value" style="color: var(--secondary);"><%= @events_count %></div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        İzin süresince meydana gelen olaylar
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: var(--secondary-light); color: var(--secondary);">
+      📊
+    </div>
+  </div>
+
+  <div class="stat-card" style="border-left: 4px solid <%= @urgent_events.any? ? '#ef4444' : '#10b981' %>;">
+    <div>
+      <div class="stat-title">Öncelikli İşler</div>
+      <div class="stat-value" style="color: <%= @urgent_events.any? ? '#ef4444' : '#10b981' %>;"><%= @urgent_events.count + @important_events.count %></div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+        <% if @urgent_events.any? %>
+          ⚠️ <%= @urgent_events.count %> acil gelişme
+        <% else %>
+          Acil durum yok ✓
+        <% end %>
+      </div>
+    </div>
+    <div class="stat-icon" style="background-color: <%= @urgent_events.any? ? '#fee2e2' : '#d1fae5' %>; color: <%= @urgent_events.any? ? '#ef4444' : '#10b981' %>;">
+      ⚡
+    </div>
+  </div>
+</div>
+<% end %>
+
+<%# ========== RETURN SUMMARY SECTION ========== %>
+<% if @summary %>
+<div class="card" style="margin-bottom: 1.5rem; border: 2px solid var(--primary-border);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--dark);">
+        ✨ İşe Dönüş Özetiniz
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+        Oluşturulma: <%= @summary.generated_at.strftime("%d.%m.%Y %H:%M") %> &bull;
+        Kaynak: <%= @summary.generated_by == "ai_rules_engine" ? "AI Kural Motoru" : "Harici LLM" %> &bull;
+        <%= @summary.events_count %> olay analiz edildi
+      </p>
+    </div>
+    <%= form_with url: generate_summary_path, method: :post, local: true do %>
+      <%= hidden_field_tag :leave_request_id, @target_leave.id %>
+      <%= submit_tag "Yeniden Oluştur 🔄", class: "btn btn-secondary btn-sm" %>
+    <% end %>
+  </div>
+
+  <%# Key Developments %>
+  <% if @summary.key_developments.present? %>
+    <% key_items = JSON.parse(@summary.key_developments) rescue [] %>
+    <% if key_items.any? %>
+      <div class="summary-section">
+        <h3 class="summary-section-title">🚀 Önemli Gelişmeler</h3>
+        <% key_items.each do |item| %>
+          <div class="summary-item">
+            <div class="summary-item-header">
+              <span><%= item["icon"] %> <strong><%= item["title"] %></strong></span>
+              <span class="badge badge-<%= item["severity"]&.downcase == "acil" ? "overdue" : "info" %>"><%= item["severity"] %></span>
+            </div>
+            <p class="summary-item-desc"><%= item["description"] %></p>
+            <span class="summary-item-meta"><%= item["date"] %><%= " • #{item['source']}" if item["source"].present? %><%= " • [DEMO VERİSİ]" if item["is_demo"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# New Assigned Tasks %>
+  <% if @summary.assigned_tasks.present? %>
+    <% assigned_items = JSON.parse(@summary.assigned_tasks) rescue [] %>
+    <% if assigned_items.any? %>
+      <div class="summary-section">
+        <h3 class="summary-section-title">📋 Yeni Atanan Görevler</h3>
+        <% assigned_items.each do |item| %>
+          <div class="summary-item">
+            <div class="summary-item-header">
+              <span><%= item["icon"] %> <strong><%= item["title"] %></strong></span>
+              <span class="badge badge-<%= item["severity"]&.downcase == "acil" ? "overdue" : "info" %>"><%= item["severity"] %></span>
+            </div>
+            <p class="summary-item-desc"><%= item["description"] %></p>
+            <span class="summary-item-meta"><%= item["date"] %><%= " • #{item['source']}" if item["source"].present? %><%= " • [DEMO VERİSİ]" if item["is_demo"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Updated Tasks & Deadlines %>
+  <% if @summary.updated_tasks.present? %>
+    <% updated_items = JSON.parse(@summary.updated_tasks) rescue [] %>
+    <% if updated_items.any? %>
+      <div class="summary-section">
+        <h3 class="summary-section-title">🔄 Güncellenen Görevler ve Teslim Tarihleri</h3>
+        <% updated_items.each do |item| %>
+          <div class="summary-item">
+            <div class="summary-item-header">
+              <span><%= item["icon"] %> <strong><%= item["title"] %></strong></span>
+              <span class="badge badge-<%= item["severity"]&.downcase == "acil" ? "overdue" : "info" %>"><%= item["severity"] %></span>
+            </div>
+            <p class="summary-item-desc"><%= item["description"] %></p>
+            <span class="summary-item-meta"><%= item["date"] %><%= " • #{item['source']}" if item["source"].present? %><%= " • [DEMO VERİSİ]" if item["is_demo"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Meetings & Announcements %>
+  <% if @summary.meeting_announcements.present? %>
+    <% meeting_items = JSON.parse(@summary.meeting_announcements) rescue [] %>
+    <% if meeting_items.any? %>
+      <div class="summary-section">
+        <h3 class="summary-section-title">📅 Toplantı ve Duyuru Değişiklikleri</h3>
+        <% meeting_items.each do |item| %>
+          <div class="summary-item">
+            <div class="summary-item-header">
+              <span><%= item["icon"] %> <strong><%= item["title"] %></strong></span>
+              <span class="badge badge-<%= item["severity"]&.downcase == "acil" ? "overdue" : "info" %>"><%= item["severity"] %></span>
+            </div>
+            <p class="summary-item-desc"><%= item["description"] %></p>
+            <span class="summary-item-meta"><%= item["date"] %><%= " • #{item['source']}" if item["source"].present? %><%= " • [DEMO VERİSİ]" if item["is_demo"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Priority Items %>
+  <% if @summary.priority_items.present? %>
+    <% priority_items_list = JSON.parse(@summary.priority_items) rescue [] %>
+    <% if priority_items_list.any? %>
+      <div class="summary-section" style="border-left: 3px solid #ef4444;">
+        <h3 class="summary-section-title" style="color: #ef4444;">⚡ Öncelikli Olarak İlgilenilmesi Gereken İşler</h3>
+        <% priority_items_list.each do |item| %>
+          <div class="summary-item" style="background: #fef2f2;">
+            <div class="summary-item-header">
+              <span><%= item["icon"] %> <strong><%= item["title"] %></strong></span>
+              <span class="badge badge-overdue"><%= item["severity"] %></span>
+            </div>
+            <p class="summary-item-desc"><%= item["description"] %></p>
+            <span class="summary-item-meta"><%= item["date"] %><%= " • #{item['source']}" if item["source"].present? %><%= " • [DEMO VERİSİ]" if item["is_demo"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Action Items / Recommendations %>
+  <% if @summary.action_items.present? %>
+    <% action_list = JSON.parse(@summary.action_items) rescue [] %>
+    <% if action_list.any? %>
+      <div class="summary-section" style="border-left: 3px solid var(--primary); background: var(--primary-light); padding: 1rem; border-radius: 8px;">
+        <h3 class="summary-section-title" style="color: var(--primary);">🎯 Önerilen Sonraki Adımlar</h3>
+        <ol style="margin-left: 1rem; font-size: 0.9rem; color: var(--text-main);">
+          <% action_list.each_with_index do |item, idx| %>
+            <li style="margin-bottom: 0.5rem;"><strong><%= item["title"] %></strong> — <%= item["description"] %></li>
+          <% end %>
+        </ol>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Empty summary %>
+  <% if [@summary.key_developments, @summary.assigned_tasks, @summary.updated_tasks, @summary.meeting_announcements, @summary.priority_items, @summary.action_items].all?(&:blank?) %>
+    <div style="text-align: center; padding: 2rem;">
+      <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🎉</div>
+      <h3 style="color: var(--dark); font-weight: 700;">İzin Sürecinizde Özetlenecek Bir Gelişme Yok</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">İzniniz sırasında sizi doğrudan ilgilendiren bir olay kaydedilmedi. İyi dinlendiniz! 🌟</p>
+    </div>
+  <% end %>
+</div>
+<% elsif @target_leave && !@summary %>
+  <%# Generate Summary CTA for active or past leave %>
+  <div class="card" style="text-align: center; padding: 2.5rem; margin-bottom: 1.5rem; border: 2px dashed var(--border-color);">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">✨</div>
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-bottom: 0.5rem;">İşe Dönüş Özetiniz Henüz Oluşturulmadı</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+      AI Asistanınız, izin süresinizdeki <strong><%= @events_count %></strong> iş gelişmesini analiz ederek size kişiselleştirilmiş bir özet hazırlayabilir.
+    </p>
+    <%= form_with url: generate_summary_path, method: :post, local: true do %>
+      <%= hidden_field_tag :leave_request_id, @target_leave.id %>
+      <%= submit_tag "İşe Dönüş Özetimi Oluştur ✨", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>
+
+<%# ========== INTERACTIVE MINI AI CHAT ========== %>
+<% if @target_leave %>
+<div class="card" id="chat-box" style="margin-bottom: 1.5rem; border: 1px solid var(--secondary); box-shadow: var(--shadow-md);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.75rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-size: 1.3rem;">💬</span>
+        <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark);">
+          İzin Asistanına Soru Sor (İnteraktif AI Chat)
+        </h2>
+        <span class="badge badge-info" style="font-size: 0.7rem;">Canlı Soru-Cevap</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+        İzin döneminizdeki iş hareketleri, toplantılar ve acil görevler hakkında istediğiniz soruyu sorabilirsiniz.
+      </p>
+    </div>
+
+    <% if @chat_messages.any? %>
+      <%= button_to "Geçmişi Temizle", clear_ai_chat_path, method: :delete, class: "btn btn-secondary btn-sm", style: "font-size: 0.78rem;" %>
+    <% end %>
+  </div>
+
+  <!-- Quick Suggestion Buttons -->
+  <div style="margin-bottom: 1rem;">
+    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem;">
+      💡 Hızlı Sorular (Tıklayarak sorabilirsiniz):
+    </span>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('Bana atanan en acil iş hangisi?')">⚡ En acil işlerim neler?</button>
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('İzindeyken toplantı saatim değişti mi?')">📅 Değişen toplantılar var mı?</button>
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('Bana yeni görev atandı mı?')">📋 Yeni atanan görevler</button>
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('Teslim tarihi değişen projeler hangileri?')">⏳ Teslim tarihi değişiklikleri</button>
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('İzin dönemimde yedek çalışanım kim?')">🤝 Yedek çalışanım kim?</button>
+      <button type="button" class="quick-question-btn" onclick="submitQuickQuestion('İzin dönemimdeki önemli gelişmeleri özetle')">🚀 Genel özet</button>
+    </div>
+  </div>
+
+  <!-- Chat History Area -->
+  <div class="chat-history-container" id="chatHistoryBox">
+    <% if @chat_messages.empty? %>
+      <div class="chat-bubble chat-bubble-assistant">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-content">
+          <strong>AI İzin Asistanı</strong>
+          <p style="margin-top: 0.25rem;">
+            Merhaba <%= @user.name %>! İzin döneminiz boyunca gerçekleşen tüm iş hareketlerini takip ettim. Merak ettiğiniz toplantı değişikliklerini, acil görevleri veya iş devri durumunuzu bana sorabilirsiniz.
+          </p>
+        </div>
+      </div>
+    <% else %>
+      <% @chat_messages.each do |msg| %>
+        <div class="chat-bubble <%= msg.user_message? ? 'chat-bubble-user' : 'chat-bubble-assistant' %>">
+          <div class="chat-avatar"><%= msg.user_message? ? '👤' : '🤖' %></div>
+          <div class="chat-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <strong><%= msg.user_message? ? 'Siz' : 'AI İzin Asistanı' %></strong>
+              <span style="font-size: 0.72rem; opacity: 0.7;"><%= msg.created_at.strftime("%H:%M") %></span>
+            </div>
+            <div style="white-space: pre-wrap; line-height: 1.5; font-size: 0.88rem;"><%= msg.content %></div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Question Input Form -->
+  <%= form_with url: ai_chat_path, method: :post, local: true, id: "chat_form", style: "margin-top: 1rem;" do |f| %>
+    <%= hidden_field_tag :leave_request_id, @target_leave.id %>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <%= text_field_tag :question, nil, id: "chat_question_input", class: "form-control", placeholder: "Asistana bir soru sorun (örn: 'Bana acil atanan işler neler?')...", required: true, autocomplete: "off", style: "flex: 1;" %>
+      <%= f.submit "Sor 🚀", class: "btn btn-primary", style: "white-space: nowrap;" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function submitQuickQuestion(text) {
+    const input = document.getElementById("chat_question_input");
+    if (input) {
+      input.value = text;
+      document.getElementById("chat_form").submit();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const box = document.getElementById("chatHistoryBox");
+    if (box) {
+      box.scrollTop = box.scrollHeight;
+    }
+  });
+</script>
+<% end %>
+
+<%# ========== EVENTS TIMELINE ========== %>
+<% if @events.any? %>
+<div class="card" style="margin-bottom: 1.5rem;">
+  <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem;">
+    📊 İzin Süresindeki İş Gelişmeleri (<%= @events_count %>)
+  </h2>
+
+  <div class="events-timeline">
+    <% @events.limit(15).each do |event| %>
+      <div class="event-card event-severity-<%= event.severity %>">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+              <span style="font-size: 1.1rem;"><%= event.event_type_icon %></span>
+              <strong style="color: var(--dark);"><%= event.title %></strong>
+              <span class="badge <%= event.severity_badge_class %>"><%= event.severity_label %></span>
+              <span class="badge badge-info"><%= event.event_type_label %></span>
+              <% if event.is_demo %>
+                <span class="badge badge-demo">DEMO</span>
+              <% end %>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.25rem;"><%= event.description %></p>
+            <span style="color: var(--text-light); font-size: 0.8rem;">
+              <%= event.occurred_at.strftime("%d.%m.%Y %H:%M") %>
+              <%= " • #{event.source_record}" if event.source_record.present? %>
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @events_count > 15 %>
+    <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 1rem;">
+      ... ve <%= @events_count - 15 %> gelişme daha. Özet oluşturarak tüm gelişmeleri görebilirsiniz.
+    </p>
+  <% end %>
+</div>
+<% end %>
+
+<%# ========== NOTIFICATIONS SECTION ========== %>
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--dark);">
+      🔔 Bildirimleriniz
+      <% if @unread_count > 0 %>
+        <span class="nav-badge-pill" style="font-size: 0.75rem;"><%= @unread_count %> yeni</span>
+      <% end %>
+    </h2>
+    <% if @unread_count > 0 %>
+      <%= form_with url: mark_all_notifications_read_path, method: :patch, local: true do %>
+        <%= submit_tag "Tümünü Okundu İşaretle", class: "btn btn-secondary btn-sm" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @notifications.any? %>
+    <% @notifications.each do |notif| %>
+      <div class="notification-item <%= 'notification-unread' if notif.unread? %>">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span style="font-size: 1.1rem;"><%= notif.type_icon %></span>
+              <strong style="color: var(--dark); font-size: 0.9rem;"><%= notif.title %></strong>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem;"><%= notif.message %></p>
+            <span style="color: var(--text-light); font-size: 0.78rem;"><%= notif.created_at.strftime("%d.%m.%Y %H:%M") %></span>
+          </div>
+          <% if notif.unread? %>
+            <%= form_with url: mark_notification_read_path(notif), method: :patch, local: true, style: "flex-shrink: 0;" do %>
+              <%= submit_tag "Okundu", class: "btn btn-secondary btn-sm" %>
+            <% end %>
+          <% else %>
+            <span style="color: var(--text-light); font-size: 0.78rem;">✓ Okundu</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="text-align: center; padding: 2rem;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔕</div>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Henüz bildiriminiz bulunmuyor.</p>
+    </div>
+  <% end %>
+</div>

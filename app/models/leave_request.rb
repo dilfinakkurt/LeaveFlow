@@ -13,6 +13,9 @@ class LeaveRequest < ApplicationRecord
   # Associations
   belongs_to :user
   belongs_to :decided_by, class_name: "User", optional: true
+  belongs_to :backup_user, class_name: "User", optional: true
+  has_one :leave_return_summary, dependent: :destroy
+  has_many :ai_chat_messages, dependent: :destroy
 
   # Validations
   validates :leave_type, presence: true, inclusion: { in: LEAVE_TYPES }
@@ -23,6 +26,7 @@ class LeaveRequest < ApplicationRecord
   validate :validate_dates_order
   validate :validate_no_overlapping_requests_for_user, on: :create
   validate :validate_sufficient_balance, on: :create
+  validate :validate_backup_user_is_different
 
   # Scopes
   scope :pending_requests, -> { where(status: "pending") }
@@ -194,6 +198,12 @@ class LeaveRequest < ApplicationRecord
 
     if current_balance < days
       errors.add(:base, "Yetersiz izin bakiyesi: Bu talep #{days} iş günü gerektiriyor, mevcut bakiyeniz: #{current_balance} gün.")
+    end
+  end
+
+  def validate_backup_user_is_different
+    if backup_user_id.present? && backup_user_id == user_id
+      errors.add(:backup_user_id, "Kendinizi yedek çalışan olarak seçemezsiniz.")
     end
   end
 end

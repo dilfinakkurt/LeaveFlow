@@ -8,6 +8,11 @@ class User < ApplicationRecord
   has_many :decided_requests, class_name: "LeaveRequest", foreign_key: "decided_by_id", dependent: :nullify
   belongs_to :manager, class_name: "User", optional: true
   has_many :subordinates, class_name: "User", foreign_key: "manager_id", dependent: :nullify
+  has_many :work_events, dependent: :nullify
+  has_many :notifications, dependent: :destroy
+  has_many :leave_return_summaries, dependent: :destroy
+  has_many :backed_up_leave_requests, class_name: "LeaveRequest", foreign_key: "backup_user_id", dependent: :nullify
+  has_many :ai_chat_messages, dependent: :destroy
 
   # Validations
   validates :name, presence: true
@@ -26,6 +31,18 @@ class User < ApplicationRecord
 
   def employee?
     role == "employee"
+  end
+
+  def unread_notifications_count
+    notifications.unread.count
+  end
+
+  def current_approved_leave
+    leave_requests.approved_requests.where("start_date <= ? AND end_date >= ?", Date.current, Date.current).first
+  end
+
+  def on_leave?
+    current_approved_leave.present?
   end
 
   def remaining_balance_for(leave_type)

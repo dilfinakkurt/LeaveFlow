@@ -203,6 +203,17 @@ Projenin kök dizininde `.github/workflows/ci.yml` dosyası yapılandırılmış
 
 ---
 
+## 14.1. AI Destekli İzin ve İşe Dönüş Asistanı (AI Leave Assistant)
+
+LeaveFlow sistemine, çalışanların izin sürecini ve dönüşünü akıllı hale getiren 4 yeni kurumsal modül entegre edilmiştir:
+
+1. **🤖 AI İşe Dönüş Asistanı (`/ai_assistant`):** İzin süresince meydana gelen görev atamaları, toplantı ertelemeleri ve ekip duyurularını (`WorkEvent`) izler. İşe dönüşte 6 yapılandırılmış başlıkta kişiselleştirilmiş brifing üretir.
+2. **💬 Canlı İnteraktif Mini AI Chat:** Çalışan izin dönemindeki gelişmeler hakkında asistana doğal dille soru sorabilir (*"Bana atanan en acil iş hangisi?"*, *"Toplantı saatim değişti mi?"*). Halüsinasyonsuz ve doğrulanabilir olay kayıtlarına dayanır.
+3. **🤝 Akıllı İş Devri ve Yedek Çalışan (Handover):** İzin talebinde vekil çalışma arkadaşı atanabilir. İzindeyken acil bir görev geldiğinde sistem hem izinliye hem de vekaleten yedek çalışana otomatik uyarı iletir.
+4. **📊 Yönetici Ekip Kapsama ve İzin Dönüş Analitiği (`/manager/analytics`):** Yöneticilere departman bazlı aktif kapasite oranı (`%`), izindeki personelin projelerindeki teslimat gecikme riskleri ve işe dönüş iş yükü birikim endeksini raporlar.
+
+---
+
 ## 15. Canlı Dağıtım (Render) ve Canlı Bağlantı
 
 - **Canlı Sistem URL'i:** [https://leaveflow-aifc.onrender.com](https://leaveflow-aifc.onrender.com)

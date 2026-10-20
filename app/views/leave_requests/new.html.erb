@@ -92,6 +92,27 @@
         <%= f.text_area :reason, rows: 4, class: "form-control", placeholder: "İzin alma amacınızı ve gerekli detayları yazınız...", required: true %>
       </div>
 
+      <!-- Handover / Backup Colleague (Akıllı İş Devri) -->
+      <div style="background-color: #f0fdf4; border: 1px solid var(--primary-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <span style="font-size: 1.1rem;">🤝</span>
+          <strong style="color: var(--dark); font-size: 0.95rem;">Akıllı İş Devri & Yedek Çalışan (Opsiyonel)</strong>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          İzin döneminiz boyunca acil işlerinizin vekaleten yönlendirileceği ekip arkadaşınızı ve devir notunuzu belirtebilirsiniz.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <%= f.label :backup_user_id, "Yedek Ekip Arkadaşı", class: "form-label" %>
+          <%= f.collection_select :backup_user_id, @colleagues || [], :id, ->(u) { "#{u.name} (#{u.department} - #{u.email})" }, { include_blank: "Seçilmedi (Yedek çalışan yok)" }, { class: "form-control" } %>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <%= f.label :handover_notes, "İş Devir Notları", class: "form-label" %>
+          <%= f.text_area :handover_notes, rows: 2, class: "form-control", placeholder: "Örn: Ödeme API entegrasyonu acil olursa Jira #LF-302 task'ına bakın..." %>
+        </div>
+      </div>
+
       <!-- Actions -->
       <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
         <%= link_to "İptal", leave_requests_path, class: "btn btn-secondary" %>

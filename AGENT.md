@@ -45,6 +45,18 @@
 ### ADR-04: Geliştirme Sunucusu Olarak WEBrick Uyarlaması
 - **Gerekçe:** Windows ortamında Puma gem'inin C derleme kütüphanelerine takılmasını önlemek için yerel geliştirmede WEBrick varsayılan yapılmış; üretim (Render) ortamı için ise `render.yaml` üzerinde Puma yapılandırılmıştır.
 
+### ADR-05: AI İzin ve İşe Dönüş Asistanı Mimari Kararı (Rules Engine + Extensible LLM)
+- **Gerekçe:** Dış yapay zekâ servislerine (OpenAI, Gemini vb.) doğrudan bağımlılık oluşturarak network/API kotası hatalarıyla uygulamayı kırmamak ve veri gizliliğini (GDPR/KVKK) korumak adına; ilk aşamada deterministik ve doğrulanabilir olay kayıtlarına dayanan kural tabanlı bir yapay zekâ motoru (`LeaveReturnSummaryService`) kurgulanmıştır. Sistem, çevre değişkeni tanımlandığında harici LLM ile sorunsuz çalışabilecek servis mimarisine sahiptir. Asla doğrulanmamış olay uydurmaz (sıfır halüsinasyon).
+
+### ADR-06: Akıllı İş Devri ve Yedek Çalışan (Handover & Backup Colleague) Modülü
+- **Gerekçe:** İzne çıkan personelin kritik işlerinin aksamaması için izin talebi anında vekil çalışma arkadaşı (`backup_user_id`) ve devir notu (`handover_notes`) tanımlanabilir. İzin sırasında personele acil bir iş düştüğünde bildirim servisi vekaleten yedek çalışana otomatik bilgilendirme iletir.
+
+### ADR-07: İnteraktif Mini AI Chat Soru-Cevap Motoru (`AiChatService`)
+- **Gerekçe:** Çalışanın sadece statik özeti okumak yerine izin dönemindeki toplantı ertelemeleri, acil görevler, PR hareketleri ve vekalet durumu hakkında doğal dille interaktif soru sorabilmesi için semantik bağlam eşleştirici ve sohbet geçmişi saklama mimarisi (`AiChatMessage`) geliştirilmiştir.
+
+### ADR-08: Yönetici Ekip Kapsama ve İzin Dönüş Analitiği (`TeamAnalyticsService`)
+- **Gerekçe:** Yöneticilerin izin onaylarken ekibin anlık aktif kapasitesini, izindeki personelin projelerinde oluşabilecek gecikme risklerini ve izin dönüşünde personelin üzerinde biriken iş hacmi stresini görebilmesi için analitik gösterge paneli eklenmiştir.
+
 ---
 
 ## 4. Etki Alanı Modeli ve Veritabanı Şeması
